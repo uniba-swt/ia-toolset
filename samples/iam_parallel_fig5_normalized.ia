@@ -1,0 +1,40 @@
+// Example in the Gareis2019 paper
+// Fig. 5 (page 13)
+
+actions { a, b }
+var x: int
+proc P {
+	act { a!, b? }
+	case {
+		x == 2 -> goto _lb_1_case_0
+		x == -2 -> goto _lb_1_case_1
+		true -> goto _lb_1_case_2
+	}
+	label _lb_1_case_0 :
+	a!
+	assume(x' != 2)
+	goto _lb_1_case_end
+	label _lb_1_case_1 :
+	a!
+	assume(x' != -2)
+	goto _lb_1_case_end
+	label _lb_1_case_2 :
+	b?
+	case {
+		x >= 0 -> goto _lb_0_case_0
+		x == 2 -> goto _lb_0_case_1
+	}
+	label _lb_0_case_0 :
+	a!
+	assume(x' == x + 1)
+	goto _lb_0_case_end
+	label _lb_0_case_1 :
+	a!
+	goto _lb_0_case_end
+	label _lb_0_case_end :
+	goto _lb_1_case_end
+	label _lb_1_case_end :
+}
+init {
+	sys p1 = P()
+}

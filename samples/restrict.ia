@@ -1,0 +1,15 @@
+actions { a, b, internal }
+proc Q {
+    act { a? , b! }
+    while {
+        a? -> b!
+        b! -> tau
+        tau -> b!
+    }
+}
+
+init {
+    sys q1 = restrict(Q(), a)
+    sys q2 = restrict(Q(), b)
+    sys q3 = restrict(Q(), a, b)
+}

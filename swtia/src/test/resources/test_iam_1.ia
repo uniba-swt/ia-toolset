@@ -1,0 +1,16 @@
+actions { snd, rec }
+var x: int
+proc P {
+    act { snd?, rec! }
+    loop {
+        x == 12
+        case {
+            snd? -> guarantee(true)
+            rec! -> assume(x < 13)
+        }
+    }
+}
+
+init {
+    sys p1 = P()
+}

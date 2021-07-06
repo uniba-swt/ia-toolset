@@ -1,0 +1,104 @@
+actions { coin, selC, selT, done, relC, relT, relCh, atVM }
+
+type CoinT { C1, C2, C05 }
+type Drink { Coffee, Tea }
+
+var v: int
+var ch: int
+var c: CoinT
+var th: Drink
+var disc: bool
+
+proc Machine {
+    act { coin?, selC?, relC!, selT?, relT!, relCh!, done! }
+    while {
+        selC? -> {
+            guarantee(v' == 0)
+            while {
+                v < 2 && c == C1 -> { coin? guarantee(v' >= v) }
+                v < 2 && c == C2 -> { coin? guarantee(v' >= v) }
+                v >= 2 -> { 
+                    relC! 
+                    assume(v' == v)
+                    break
+                }
+            }
+            case {
+                v == 2 -> done!
+                v > 2 -> {
+                    ch == v - 2
+                    relCh!
+                }
+            }
+        }
+        selT? -> {
+            guarantee(v' == 0)
+            while {
+                v < 1 && c == C1 -> { coin? guarantee(v' > v) }
+                v < 1 && c == C2 -> { coin? guarantee(v' > v) }
+                v >= 1 -> {
+                    relT! 
+                    assume(v' == v)
+                    break
+                }
+            }
+            case {
+                v == 1 -> done!
+                v > 1 -> {
+                    ch == v - 1
+                    relCh!
+                }
+            }
+        }
+    }
+}
+
+proc Customer {
+    act { atVM?, coin!, selC!, relC?, selT!, relT?, relCh?, done? }
+    while {
+        th == Coffee -> {
+            atVM?
+            selC!
+            while {
+                v < 2 && c == C1 -> { coin! assume(v' > v) }
+                v < 2 && c == C2 -> { coin! assume(v' > v) }
+                relC? -> {
+                    guarantee(v' == v)
+                    break
+                }
+            }
+            case {
+                v <= 2 -> done?
+                v > 2 -> {
+                    ch == v - 2
+                    relCh?
+                }
+            }
+        }
+        th == Tea -> {
+            atVM?
+            selT!
+            while {
+                v < 1 && c == C05 -> { coin! assume(v' > v) }
+                v < 1 && c == C1 -> { coin! assume(v' > v) }
+                v < 1 && c == C2 -> { coin! assume(v' > v)}
+                relT? -> {
+                    guarantee(v' == v)
+                    break
+                }
+            }
+            case {
+                v <= 1 -> done?
+                v > 1 -> {
+                    ch == v - 1
+                    relCh?
+                }
+            }
+        }
+    }
+}
+
+init {
+    sys prod = product(Machine(), Customer())
+    sys comp = prune(prod)
+}

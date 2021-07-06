@@ -1,0 +1,33 @@
+actions { a, b }
+var x: int
+
+proc Spec {
+    act { a?, b! }
+    case {
+        // a? -> guarantee(x' > 0)
+        x >= 0 -> {
+            b!
+            assume(x' == 2)
+        }
+        x < 0 -> {
+            b!
+            assume(x' == -4)
+        }
+        x <= 0 -> {
+            b!
+            assume(x' == -100)
+        }
+    }
+}
+proc Impl1 {
+    act { a?, b! }
+    case {
+        b! -> assume(x' > 0)
+        a? -> guarantee(x' > 0)
+    }
+}
+init {
+    sys spec1 = Spec()
+    sys impl1 = Impl1()
+    refinement(impl1, spec1)
+}

@@ -1,0 +1,20 @@
+actions { snd, rec }
+var x: int
+proc P {
+    act { snd?, rec! }
+    loop {
+        snd?
+        rec!
+        while {
+            x == 1 -> tau
+            x < 100 -> {
+                tau
+                break
+            }
+        }
+    }
+}
+
+init {
+    sys p1 = P()
+}

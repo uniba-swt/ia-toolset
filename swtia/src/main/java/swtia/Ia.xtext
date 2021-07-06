@@ -1,0 +1,382 @@
+/*
+ *
+ * Copyright (C) 2021 University of Bamberg, Software Technologies Research Group
+ * <https://www.uni-bamberg.de/>, <http://www.swt-bamberg.de/>
+ *
+ * This file is part of the Foundations of Heterogeneous Specifications Using
+ * State Machines and Temporal Logic (IA-Toolset) project, which received financial
+ * support by the German Research Foundation (DFG) under grant nos. LU 1748/3-2,
+ * VO 615/12-2, see <https://www.swt-bamberg.de/research/interface-theories.html>.
+ *
+ * IA-Toolset is licensed under the GNU GENERAL PUBLIC LICENSE (Version 3), see
+ * the LICENSE file at the project's top-level directory for details or consult
+ * <http://www.gnu.org/licenses/>.
+ *
+ * IA-Toolset is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or any later version.
+ *
+ * IA-Toolset is a RESEARCH PROTOTYPE and distributed WITHOUT ANY
+ * WARRANTY, without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * The following people contributed to the conception and realization of the
+ * present IA-Toolset distribution (in alphabetic order by surname):
+ *
+ * - Tri Nguyen (https://github.com/trinnguyen)
+ *
+ */
+
+grammar swtia.Ia hidden(WS, SL_COMMENT)
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
+generate ia "https://www.swt-bamberg.de/research/ia"
+
+// Root model
+GModel:
+	{GModel}
+	('#' iaType=('iam'|'mia'))?
+	('actions' '{' actions+=GAction (',' actions+=GAction)* '}')?
+	(dataTypes+=GCustomType)*
+	(decls+=GVarDecl)*
+	(procs+=GProc)+
+	init=GModelInit
+;
+
+GAction:
+	{GAction}
+	name=ID
+;
+
+// custom enum type
+GCustomType:
+	{GCustomType}
+	'type' name=ID '{' members+=GCustomTypeMem (',' members+=GCustomTypeMem)* '}'
+;
+
+GCustomTypeMem returns GCommonVar:
+	{GCustomTypeMem}
+	name=ID
+;
+
+GVarDecl returns GCommonVar:
+	{GVarDecl}
+	'var' name=ID
+	':' dataType=GDataType
+;
+
+// process
+GProc:
+	'proc' name=ID
+	('(' params+=GProcParam (',' params+=GProcParam)* ')')?
+	'{'
+	    ('act' '{' actionRefs+=GActionRef (',' actionRefs+=GActionRef )* '}' )?
+        body=GCmpStmtBody
+	'}'
+;
+
+GActionRef:
+    {GActionRef}
+    action=[GAction] suffix=GActionSuffix
+;
+
+GProcParam:
+	{GProcParam}
+    name=ID (suffix=GActionSuffix |  (':' dataType=GDataType))
+;
+
+GModelInit:
+    {GModelInit}
+    'init' '{'
+        (items+=GSysStmt)*
+    '}'
+;
+
+GStmt:
+    GDisjunctiveStmt
+;
+
+GDisjunctiveStmt returns GStmt:
+	GNormalStmt (=>({GDisjunctiveStmt.firstStmt=current} 'or') secondStmt=GNormalStmt)*
+;
+
+// statements
+GNormalStmt returns GStmt:
+	 GCmpStmt | GIfStmt | GCaseStmt | GWhileStmt | GLoopStmt | GExprStmt | GAssertStmt | GLabeledStmt | GJumpStmt | GErrorSkipStmt | GGotoStmt | GDisjunctiveGotoStmt
+;
+
+// merge of GDisjunctiveStmt and GGotoStmt, used in normalized IR
+GDisjunctiveGotoStmt returns GStmt:
+    {GDisjunctiveGotoStmt}
+    'or' '{' labels+=[GLabeledStmt] (',' labels+=[GLabeledStmt])+ '}'
+;
+
+GCmpStmt:
+	{GCmpStmt}
+	'{'
+	    body=GCmpStmtBody
+	'}'
+;
+
+GCmpStmtBody:
+    {GCmpStmtBody}
+    (decls+=GVarDecl)*
+    (stmts+=GStmt)*
+;
+
+GIfStmt:
+	{GIfStmt}
+	'if' expr=GExpr thenBody=GCmpStmt ('else' elseBody=GCmpStmt)?
+;
+
+GCaseStmt:
+	{GCaseStmt}
+	'case' '{' caseBody=GCaseStmtBody '}'
+;
+
+GWhileStmt:
+	{GWhileStmt}
+	'while' '{' caseBody=GCaseStmtBody '}'
+;
+
+GCaseStmtBody:
+	{GCaseStmtBody}
+	(branches+=GCaseBranch)+
+;
+
+GCaseBranch:
+	{GCaseBranch}
+	expr=GExpr '->' stmt=GStmt
+;
+
+GLoopStmt:
+	{GLoopStmt}
+	'loop' stmt=GCmpStmt
+;
+
+GExprStmt:
+	{GExprStmt}
+	expr=GExpr SEP?
+;
+
+GAssertStmt:
+	{GAssertStmt}
+	name=('assume' | 'guarantee') '(' expr=GLogicalOrExpr ')' SEP?
+;
+
+GLabeledStmt:
+	{GLabeledStmt}
+	'label' name=ID ':'
+;
+
+GGotoStmt:
+    {GGotoStmt}
+    'goto' label=[GLabeledStmt] SEP?
+;
+
+GJumpStmt:
+	{GJumpStmt}
+	jumpType=GJumpType SEP?
+;
+
+GErrorSkipStmt:
+    {GErrorSkipStmt}
+    (error?='error' | skip?='skip') SEP?
+;
+
+enum GJumpType:
+	CONTINUE='continue' |
+	BREAK='break'
+;
+
+GSysStmt:
+	GSysDeclStmt | GSysExprStmt
+;
+
+GSysDeclStmt:
+	{GSysDeclStmt}
+	'sys' name=ID '=' expr=GSysExpr
+;
+
+GSysExprStmt:
+	{GSysExprStmt}
+	expr=GSysExpr
+;
+
+GSysExpr:
+	GSysProcCallExpr | GSysDeclRefExpr | GSysBinOpExpr | GSysPruneExpr | GSysRestrictExpr
+;
+
+GSysProcCallExpr:
+    {GSysProcCallExpr}
+    proc=[GProc] '(' (args+=GExpr ( ',' args+=GExpr)*)? ')'
+;
+
+GSysDeclRefExpr:
+	decl=[GSysDeclStmt]
+;
+
+GSysBinOpExpr:
+    {GSysBinOpExpr}
+    opType=GSysBinOpType '(' param1=GSysExpr ',' param2=GSysExpr ')'
+;
+
+enum GSysBinOpType:
+	PRODUCT='product' | COMPOSITION='composition' | REFINE='refinement'
+;
+
+GSysPruneExpr:
+    {GSysPruneExpr}
+    'prune' '(' param=GSysExpr ')'
+;
+
+GSysRestrictExpr:
+    {GSysRestrictExpr}
+    'restrict' '(' param=GSysExpr (',' actions += [GAction] ) + ')'
+;
+
+GDataType:
+    {GDataType}
+    (bool?='bool' | int?='int' | customType =[GCustomType])
+;
+
+// expression
+GExpr:
+	GLogicalOrExpr
+;
+
+GLogicalOrExpr returns GOpExpr:
+	GLogicalAndExpr (=>({GOpExpr.leftExpr=current} op=GOrOp) rightExpr=GLogicalAndExpr)*
+;
+
+GLogicalAndExpr returns GOpExpr:
+	GEqualityExpr (=>({GOpExpr.leftExpr=current} op=GAndOp) rightExpr=GEqualityExpr)*
+;
+
+GEqualityExpr returns GOpExpr:
+	GRelationalExpr (=>({GOpExpr.leftExpr=current} op=GEqualityOp) rightExpr=GRelationalExpr)*
+;
+
+GRelationalExpr returns GOpExpr:
+	GAdditiveExpr (=>({GOpExpr.leftExpr=current} op=GRelationalOp) rightExpr=GAdditiveExpr)*
+;
+
+GAdditiveExpr returns GOpExpr:
+	GMultiplicativeExpr (=>({GOpExpr.leftExpr=current} op=GAddSubtractOp) rightExpr=GMultiplicativeExpr)*
+;
+
+GMultiplicativeExpr returns GOpExpr:
+	GUnaryExpr (=>({GOpExpr.leftExpr=current} op=GMulDivOp) rightExpr=GUnaryExpr)*
+;
+
+GUnaryExpr returns GOpExpr:
+    {GUnaryExpr}
+	op=GUnaryOp expr=GUnaryExpr
+	| GPrimaryExpr
+;
+
+GPrimaryExpr returns GOpExpr:
+	GParenthesizedExpr |
+	GLiteralExpr |
+	GIdRefExpr |
+	GActionExpr
+;
+
+GParenthesizedExpr:
+	{GParenthesizedExpr}
+	'(' expr=GLogicalOrExpr ')'
+;
+
+GLiteralExpr:
+	{GLiteralExpr}
+	literal=GLiteral
+;
+
+// ref maybe 1 of 3: custom type member/global variable/process parameter
+// if varPrime: global variable
+GIdRefExpr:
+	{GIdRefExpr}
+	ref=[GCommonVar] (varPrime?='\'')?
+;
+
+GCommonVar:
+	GVarDecl | GProcParam | GAction
+;
+
+GActionExpr:
+	{GActionExpr} may?='may'? action=[GCommonVar] suffix=GActionSuffix |
+	{GActionExpr} may?='may'? tau?='tau'
+;
+
+enum GActionSuffix:
+	INPUT='?' | OUTPUT='!'
+;
+
+// literal
+GLiteral:
+	GBooleanLiteral | GIntLiteral
+;
+
+GBooleanLiteral returns GLiteral:
+	{GBooleanLiteral}
+	value=GBooleanConst
+;
+
+enum GBooleanConst:
+	TRUE='true' | FALSE='false'
+;
+
+GIntLiteral returns GLiteral:
+	{GIntLiteral}
+	value=INT
+;
+
+enum GOrOp returns GOpType:
+	OR='||'
+;
+
+enum GAndOp returns GOpType:
+	AND='&&'
+;
+
+enum GEqualityOp returns GOpType:
+	EQUAL='==' | NOT_EQUAL='!='
+;
+
+enum GRelationalOp returns GOpType:
+	GREATER='>' | LESS='<' | GREATER_OR_EQUAL='>=' | LES_OR_EQUAL='<='
+;
+
+enum GAddSubtractOp returns GOpType:
+	ADD='+' | SUBTRACT='-'
+;
+
+enum GMulDivOp returns GOpType:
+	MULTIPLY='*' | DIVISION='/' | MOD='%'
+;
+
+enum GUnaryOp returns GOpType:
+	MINUS='-' | PLUS='+' | NOT='~'
+;
+
+terminal SEP:
+    '=>' | ';'
+;
+
+terminal ID:
+	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*
+;
+
+terminal SL_COMMENT :
+	'//' !('\n'|'\r')* ('\r'? '\n')?
+;
+
+terminal INT returns ecore::EInt:
+	'-'? ('0'..'9')+
+;
+
+terminal WS         : (' '|'\t'|'\r'|'\n')+;
+
+terminal ANY_OTHER: .;

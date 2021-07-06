@@ -1,0 +1,36 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'org.xtext:xtext-gradle-plugin:2.0.8'
+	}
+}
+
+subprojects {
+	ext.junitversion = '5.7.0'
+	ext.xtextVersion = '2.25.0'
+	repositories {
+		mavenCentral()
+	}
+	
+	apply plugin: 'java'
+	dependencies {
+		implementation platform("org.eclipse.xtext:xtext-dev-bom:${xtextVersion}")
+	}
+
+	apply plugin: 'org.xtext.xtend'
+	apply from: "${rootDir}/gradle/source-layout.gradle"
+	apply plugin: 'eclipse'
+
+	// change value in class: CliWrapper.kt as well
+	group = 'swtia'
+	version = '1.0.0'
+	
+	sourceCompatibility = '11'
+	targetCompatibility = '11'
+	
+	configurations.all {
+		exclude group: 'asm'
+	}
+}

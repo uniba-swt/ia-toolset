@@ -1,0 +1,267 @@
+{
+  "name": "ia-toolset",
+  "displayName": "IA Toolset",
+  "description": "IDE plugin with LSP server for Interface Automata, debugger, refinement checker and simulator",
+  "publisher": "trinnguyen",
+  "repository": "https://github.com/uniba-swt/ia-toolset",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.53.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Formatters"
+  ],
+  "keywords": [
+    "Interface Automata",
+    "IA Toolset",
+    "ia-toolset",
+    "ia-lang"
+  ],
+  "activationEvents": [
+    "onLanguage:ia",
+    "onDebug"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "ia",
+        "aliases": [
+          "ia"
+        ],
+        "extensions": [
+          ".ia"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "ia",
+        "scopeName": "source.ia",
+        "path": "./syntaxes/ia.tmLanguage.json"
+      }
+    ],
+    "configurationDefaults": {
+      "[ia]": {
+        "editor.semanticHighlighting.enabled": true
+      }
+    },
+    "configuration": [
+      {
+        "title": "IA Toolset",
+        "properties": {
+          "ia-toolset.remoteLspEnabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Use remote LSP server"
+          },
+          "ia-toolset.remoteLspPort": {
+            "type": "number",
+            "default": 8686,
+            "description": "LSP server port number"
+          },
+          "ia-toolset.remoteDebugAdapterEnabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Use remote Debug Adapater server"
+          },
+          "ia-toolset.remoteDebugAdapterPort": {
+            "type": "number",
+            "default": 8989,
+            "description": "Debug Adapter server port number"
+          }
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "ia-toolset.cmdRun",
+        "enablement": "resourceExtname == .ia",
+        "title": "Run",
+        "category": "IA Toolset"
+      },
+      {
+        "command": "ia-toolset.cmdDebug",
+        "enablement": "resourceExtname == .ia",
+        "title": "Debug",
+        "category": "IA Toolset"
+      },
+      {
+        "command": "ia-toolset.cmdSimulateRefinement",
+        "enablement": "resourceExtname == .ia",
+        "title": "Interactive alternating simulation",
+        "category": "IA Toolset"
+      },
+      {
+        "command": "ia-toolset.cmdReloadIde",
+        "enablement": "resourceExtname == .ia",
+        "title": "Reload IA IDE Server",
+        "category": "IA Toolset"
+      },
+      {
+        "command": "ia-toolset.cmdAcceptFamily",
+        "title": "Accept",
+        "icon": "$(check-all)"
+      },
+      {
+        "command": "ia-toolset.cmdRefinementBack",
+        "title": "Back",
+        "icon": "$(arrow-left)"
+      },
+      {
+        "command": "ia-toolset.cmdSelectTransition",
+        "title": "Select",
+        "icon": "$(chevron-right)"
+      },
+      {
+        "command": "ia-toolset.cmdResetExploreProcess",
+        "title": "Reset",
+        "icon": "$(refresh)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "ia-toolset.cmdSimulateRefinement",
+        "key": "ctrl+shift+i",
+        "mac": "cmd+shift+i",
+        "when": "editorTextFocus && resourceExtname == .ia"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "ia-debugger",
+        "languages": [
+          "ia"
+        ],
+        "label": "IA Debugger"
+      }
+    ],
+    "breakpoints": [
+      {
+        "language": "ia"
+      }
+    ],
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "ia-refinement-panel",
+          "title": "IA Refinement",
+          "icon": "media/ia.svg"
+        }
+      ],
+      "activitybar": [
+        {
+          "id": "ia-toolset-panel",
+          "title": "IA Toolset",
+          "icon": "media/ia.svg"
+        }
+      ]
+    },
+    "views": {
+      "ia-refinement-panel": [
+        {
+          "id": "ia-refinement-left",
+          "name": "Implementation",
+          "type": "tree",
+          "icon": "media/ia.svg"
+        },
+        {
+          "id": "ia-refinement-right",
+          "name": "Specification",
+          "type": "tree",
+          "icon": "media/ia.svg"
+        }
+      ],
+      "ia-toolset-panel": [
+        {
+          "id": "ia-explore-process",
+          "name": "Explore process",
+          "type": "tree",
+          "icon": "media/ia.svg"
+        },
+        {
+          "id": "ia-explore-history",
+          "name": "History",
+          "type": "tree",
+          "icon": "media/ia.svg"
+        }
+      ],
+      "debug": [
+        {
+          "id": "ia-product-view",
+          "name": "Product",
+          "icon": "media/ia.svg"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "when": "view == ia-refinement-left",
+          "group": "navigation",
+          "command": "ia-toolset.cmdRefinementBack"
+        },
+        {
+          "when": "view == ia-refinement-right",
+          "group": "navigation",
+          "command": "ia-toolset.cmdRefinementBack"
+        },
+        {
+          "when": "view == ia-explore-process",
+          "group": "navigation",
+          "command": "ia-toolset.cmdResetExploreProcess"
+        }
+      ],
+      "view/item/context": [
+        {
+          "when": "view == ia-refinement-left && viewItem == FamilyRefinementRow",
+          "group": "inline",
+          "command": "ia-toolset.cmdAcceptFamily"
+        },
+        {
+          "when": "view == ia-refinement-right && viewItem == FamilyRefinementRow",
+          "group": "inline",
+          "command": "ia-toolset.cmdAcceptFamily"
+        },
+        {
+          "when": "view == ia-explore-process && viewItem == TransitionRow",
+          "group": "inline",
+          "command": "ia-toolset.cmdSelectTransition"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "package": "tsc -p ./ && vsce package",
+    "publish": "tsc -p ./ && vsce publish",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "dependencies": {
+    "vscode-debugadapter": "1.47.0",
+    "vscode-languageclient": "6.1.4"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.0.4",
+    "@types/node": "^12.11.7",
+    "@types/vscode": "^1.53.0",
+    "@typescript-eslint/eslint-plugin": "4.28.0",
+    "@typescript-eslint/parser": "4.28.0",
+    "eslint": "7.29.0",
+    "eslint-config-standard": "16.0.2",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-promise": "4.3.1",
+    "glob": "^7.1.6",
+    "mocha": "^8.2.1",
+    "typescript": "^4.1.3",
+    "vsce": "1.87.1",
+    "vscode-test": "^1.5.0"
+  }
+}

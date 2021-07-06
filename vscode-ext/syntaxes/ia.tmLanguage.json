@@ -1,0 +1,66 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "ia",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#supports"
+		},
+		{
+			"include": "#code"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.ia",
+					"match": "\\b(else|case|while|loop|label|goto|continue|break|skip|error|or)\\b"
+				},
+				{
+					"name": "keyword.other.ia",
+					"match": "\\b(actions|type|var|proc|act|init)\\b"
+				}
+			]
+		},
+		"supports": {
+			"patterns": [
+				{
+					"name": "support.function.ia",
+					"match": "\\b(assume|guarantee|product|composition|refinement|prune|restrict)\\b"
+				},
+				{
+					"name": "support.type.ia",
+					"match": "\\b(bool|int|sys)\\b"
+				}
+			]
+		},
+		"code": {
+			"patterns": [
+				{
+					"match": "(?<![\\w\\d.])\\d+(?![pPeE.0-9])",
+					"name": "constant.numeric.ia"
+				},
+				{
+					"name": "variable.other.constant.ia",
+					"match": "\\b(true|false|tau|may)\\b"
+				},
+				{
+					"name": "entity.name.tag.ia",
+					"match": "(#)\\b(mia|iam)\\b"
+				}
+			]
+		},
+		"comments": {
+			"name": "comment.line.double-dash.ia",
+			"begin": "//",
+			"end": "$\n?"
+		}
+	},
+	"scopeName": "source.ia"
+}

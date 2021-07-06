@@ -1,0 +1,20 @@
+#mia
+actions { o, i}
+
+proc P {
+    act { o!, i? }
+    tau => {
+        o! => i?
+    } or {
+        tau => o! or o!
+    }
+}
+
+proc Q {
+    act { o!, i? }
+    o! => may i?
+}
+
+init {
+    refinement(P(), Q())
+}

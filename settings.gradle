@@ -1,0 +1,3 @@
+include 'ialib'
+include 'swtia'
+include 'swtia.ide'

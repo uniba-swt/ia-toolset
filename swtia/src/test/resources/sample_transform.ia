@@ -1,0 +1,98 @@
+actions { a }
+
+var p0: bool
+var p1: bool
+var p2: bool
+var p3: bool
+var p4: bool
+
+proc m {
+    loop {
+        tau
+        if (true) {
+            error
+            break
+        } else {
+            continue
+            skip
+        }
+    }
+    p0
+}
+
+proc n {
+    if (p0) {
+        p1
+    }
+    tau
+}
+
+proc k {
+    act { a! }
+    a!
+    assume(true)
+    while {
+        true -> loop {
+            case {
+                p0 -> error
+            }
+        }
+        false -> {
+            p2
+        }
+        true -> error
+        false -> skip
+    }
+}
+
+proc p {
+    act { a? }
+    p0
+    loop {
+        a?
+        p1
+        break
+        loop {
+            p2
+            break
+            while {
+                true -> {
+                    loop {
+                        break
+                    }
+                }
+                false -> continue
+            }
+        }
+    }
+
+    loop {
+        if (true) {
+            break
+        } else {
+            continue
+        }
+    }
+
+    loop {
+        case {
+            p1 -> {}
+            p2 -> break
+        }
+    }
+    a?
+    guarantee(p4)
+}
+
+proc q(x: int) {
+    tau
+    x == 1
+}
+
+init {
+    sys s1 = m()
+    sys s2 = n()
+    sys s3 = k()
+    sys s4 = product(s1, s2)
+    refinement(p(), product(s4, composition(s3, q(1))))
+}

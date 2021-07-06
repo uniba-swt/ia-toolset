@@ -1,0 +1,14 @@
+.gradle/
+.DS_Store
+.metadata/
+.idea/
+generated/
+.launch/
+.settings/
+xtext-gen/
+xtend-gen/
+src-gen/
+out/
+bin/
+build/
+/**/.vscode/

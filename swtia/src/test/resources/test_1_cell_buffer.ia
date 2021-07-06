@@ -1,0 +1,12 @@
+actions { snd, rec, internal, port }
+
+proc Cell(in?, out!) {
+    while {
+        in? -> out!
+    }
+}
+
+init {
+    sys com1 = composition(Cell(snd?, internal!), Cell(internal?, rec!))
+    sys com2 = composition(com1, Cell(rec?, port!))
+}

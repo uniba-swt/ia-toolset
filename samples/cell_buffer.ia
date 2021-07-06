@@ -1,0 +1,11 @@
+actions { snd, rec, internal }
+
+proc Cell(in?, out!) {
+    while {
+        in? -> out!
+    }
+}
+
+init {
+    sys prod = product(Cell(snd?, internal!), Cell(internal?, rec!))
+}

@@ -1,0 +1,27 @@
+plugins {
+	id 'application'
+	id 'org.jetbrains.kotlin.jvm' version '1.5.0'
+}
+dependencies {
+	implementation project(':ialib')
+	implementation project(':swtia')
+	implementation 'ch.qos.logback:logback-classic:1.2.3'
+	implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
+	implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.debug:0.12.0'
+	implementation "org.eclipse.xtext:org.eclipse.xtext.ide:${xtextVersion}"
+	implementation "org.eclipse.xtext:org.eclipse.xtext.xbase.ide:${xtextVersion}"
+}
+
+application {
+	mainClass.set('swtia.IdeMain')
+	 applicationDefaultJvmArgs = ["--add-opens","java.base/java.lang=ALL-UNNAMED"]
+}
+def scriptName="ia-ide-server"
+tasks.withType(CreateStartScripts) {
+	applicationName = scriptName
+}
+distributions {
+	main {
+		distributionBaseName.set(scriptName)
+	}
+}

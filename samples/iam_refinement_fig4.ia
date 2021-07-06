@@ -1,0 +1,67 @@
+actions { a, b }
+var x: int
+
+proc P {
+    act { a?, b! }
+    case {
+        x > 0 -> {
+            a?
+            guarantee(x' < 0)
+            x <= -2
+            b!
+            assume(x' <= 2)
+        }
+        x < 0 -> {
+            a?
+            guarantee(x' > 0)
+            x >= -1
+            b!
+            assume(x' >= -3)
+        }
+    }
+}
+
+proc Q {
+    act { a?, b! }
+    x != 0
+    a?
+    guarantee(x' != 0)
+    tau
+    case {
+        x <= -2 -> {
+            b!
+            assume(x' <= 2)
+        }
+        x >= -1 -> {
+            b!
+            assume(x' >= -3)
+        }
+    }
+}
+
+proc R {
+    act { a?, b! }
+    x > 0
+    a?
+    case {
+        tau -> {
+            x <= 0
+            b!
+            assume(x' >= -2)
+            assume(x' <= 2)
+        }
+        tau -> {
+            x >= 0
+            b!
+            assume(x' == 1)
+        }
+    }
+}
+
+init {
+    sys p1 = P()
+    sys q1 = Q()
+    refinement(p1, q1)
+    sys r1 = R()
+    refinement(q1, r1)
+}

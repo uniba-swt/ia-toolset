@@ -1,0 +1,105 @@
+plugins {
+	id 'application'
+	id 'org.jetbrains.kotlin.jvm' version '1.5.0'
+	id 'jacoco'
+}
+
+application {
+	mainClass.set('swtia.startup.Main')
+}
+def scriptName="iac"
+tasks.withType(CreateStartScripts) {
+	applicationName = scriptName
+}
+distributions {
+	main {
+		distributionBaseName.set(scriptName)
+	}
+}
+
+dependencies {
+	implementation project(':ialib')
+	testImplementation "org.junit.jupiter:junit-jupiter-api:${junitversion}"
+	testImplementation "org.junit.jupiter:junit-jupiter-params:${junitversion}"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitversion}"
+	testImplementation "org.eclipse.xtext:org.eclipse.xtext.testing:${xtextVersion}"
+	testImplementation "org.eclipse.xtext:org.eclipse.xtext.xbase.testing:${xtextVersion}"
+	implementation "org.eclipse.xtext:org.eclipse.xtext:${xtextVersion}"
+	implementation "org.eclipse.xtext:org.eclipse.xtext.xbase:${xtextVersion}"
+	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+	implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
+	implementation 'commons-cli:commons-cli:1.4'
+	implementation 'org.jgrapht:jgrapht-core:1.5.0'
+}
+configurations {
+	mwe2 {
+		extendsFrom implementation
+	}
+}
+
+dependencies {
+	mwe2 'org.eclipse.emf:org.eclipse.emf.mwe2.launch'
+	mwe2 "org.eclipse.xtext:org.eclipse.xtext.common.types:${xtextVersion}"
+	mwe2 "org.eclipse.xtext:org.eclipse.xtext.xtext.generator:${xtextVersion}"
+	mwe2 'org.eclipse.xtext:xtext-antlr-generator'
+}
+
+task generateXtextLanguage(type: JavaExec) {
+	main = 'org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher'
+	classpath = configurations.mwe2
+	inputs.file "src/main/java/swtia/GenerateIa.mwe2"
+	inputs.file "src/main/java/swtia/Ia.xtext"
+	outputs.dir "src/main/xtext-gen"
+	args += "src/main/java/swtia/GenerateIa.mwe2"
+	args += "-p"
+	args += "rootPath=/${projectDir}/.."
+}
+
+test {
+	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
+}
+
+jacoco {
+	toolVersion = "0.8.7"
+}
+
+jacocoTestReport {
+	// exclude generated code by Xtext
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it,
+					exclude: [
+							'swtia/ia',
+							'swtia/serializer',
+							'swtia/services',
+							'**/parser/antlr'
+					]
+			)
+		}))
+	}
+	reports {
+		html.enabled true
+	}
+}
+
+test.finalizedBy(jacocoTestReport)
+
+compileKotlin {
+	kotlinOptions {
+		jvmTarget = "1.8"
+	}
+}
+compileTestKotlin {
+	kotlinOptions {
+		jvmTarget = "1.8"
+	}
+}
+
+compileKotlin.dependsOn(generateXtext)
+
+generateXtext.dependsOn(generateXtextLanguage)
+clean.dependsOn(cleanGenerateXtextLanguage)
+eclipse.classpath.plusConfigurations += [configurations.mwe2]
