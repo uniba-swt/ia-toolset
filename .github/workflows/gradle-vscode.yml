@@ -1,0 +1,48 @@
+name: gradle-vscode
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: sh install-dependencies.sh
+      - run: sh run-test.sh
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          files: swtia/build/test-results/test/**/TEST-*.xml
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: sh install-dependencies.sh
+      - run: sh run-assemble.sh
+      - uses: actions/upload-artifact@v2
+        with:
+          name: bin
+          path: bin/*.zip
+          retention-days: 1
+  vscode:
+    runs-on: ubuntu-latest
+    needs: assemble
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.2.0
+      - uses: actions/download-artifact@v2.0.10
+        with:
+          path: ./
+      - run: sh run-vscode.sh
+      - uses: actions/upload-artifact@v2
+        with:
+          name: bin
+          path: bin/*.vsix
+          retention-days: 1
