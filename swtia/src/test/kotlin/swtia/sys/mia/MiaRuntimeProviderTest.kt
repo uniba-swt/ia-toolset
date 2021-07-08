@@ -65,11 +65,11 @@ class MiaRuntimeProviderTest {
                     "} " +
                     "init { " +
                     "sys t0 = Q() " +
-                    "sys q1 = restrict(t0, a)" +
+                    "sys q1 = scope(t0, a)" +
                     "} ",
         ]
     )
-    fun testRestrict(src: String) {
+    fun testScopeInput(src: String) {
         val model = testHelper.validate(src)
         val pair = standaloneApp.execModel(model)
         assertTrue(pair.isSat)
@@ -81,7 +81,38 @@ class MiaRuntimeProviderTest {
         assertEquals(1, actions.size)
         assertEquals("b", actions.first().name)
 
-        assertEquals(2, mia.initState.getAllMustSteps().size)
+        assertEquals("b!, __tau;", mia.initState.actionsSequence.joinToString())
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "#mia actions { a, b, internal } " +
+                    "proc Q { " +
+                    "act { a? , b! } " +
+                    "while {\n" +
+                    "        a? -> b!\n" +
+                    "        tau -> a?\n" +
+                    "        b! -> tau\n" +
+                    "        tau -> b!\n" +
+                    "    } " +
+                    "} " +
+                    "init { sys q1 = scope(Q(), b) }"
+        ]
+    )
+    fun testScopeOutput(src: String) {
+        val model = testHelper.validate(src)
+        val pair = standaloneApp.execModel(model)
+        assertTrue(pair.isSat)
+        assertNotNull(pair.runtimeData)
+
+        // check q1
+        val mia = pair.runtimeData!!.getSys<MiaSysIa>("q1").automaton
+        val actions = mia.ioActions.toList()
+        assertEquals(1, actions.size)
+        assertEquals("a", actions.first().name)
+
+        assertEquals("a?, __tau;", mia.initState.actionsSequence.joinToString())
     }
 
     @ParameterizedTest
