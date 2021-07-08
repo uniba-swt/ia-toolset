@@ -149,4 +149,8 @@ object ErrorMessages {
     const val disjunctiveStatementMustFollowMust = "disjunctive statement must follow a must action"
 
     const val initStateIsPruned = "invalid result automaton of product (init state is pruned)"
+
+    const val restrictIsOnlySupportedInIam = "restrict is only supported in IAM"
+
+    const val scopeIsOnlySupportedInMia = "scope is only supported in MIA"
 }

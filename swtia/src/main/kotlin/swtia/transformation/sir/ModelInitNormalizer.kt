@@ -156,6 +156,7 @@ class ModelInitNormalizer {
             is GSysBinOpExpr -> normalizeExpr(expr.param1) + normalizeExpr(expr.param2)
             is GSysPruneExpr -> normalizeExpr(expr.param)
             is GSysRestrictExpr -> normalizeExpr(expr.param)
+            is GSysScopeExpr -> normalizeExpr(expr.param)
             else -> emptyList()
         }
     }

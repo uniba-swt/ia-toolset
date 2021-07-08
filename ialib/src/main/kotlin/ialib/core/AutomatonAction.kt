@@ -43,6 +43,8 @@ data class AutomatonAction(val name: String, val actionType: AutomatonActionType
 
     fun isInput(): Boolean = this.actionType == AutomatonActionType.Input
 
+    fun isOutput(): Boolean = this.actionType == AutomatonActionType.Output
+
     fun isInputOrInternal(): Boolean = this.actionType == AutomatonActionType.Input || this.actionType == AutomatonActionType.Internal
 
     fun isOutputOrInternal(): Boolean = this.actionType == AutomatonActionType.Output || this.actionType == AutomatonActionType.Internal

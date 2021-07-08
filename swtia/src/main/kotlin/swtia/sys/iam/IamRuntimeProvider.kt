@@ -47,6 +47,7 @@ import swtia.sys.SolverRuntimeUtil
 import swtia.transformation.TransformException
 import swtia.transformation.iam.IamTransformController
 import swtia.transformation.mir.IrProc
+import swtia.util.InternalIaException
 import swtia.util.Ulogger
 import java.nio.file.Paths
 
@@ -99,5 +100,9 @@ class IamRuntimeProvider: RuntimeProviderInterface<SysIa> {
 
     override fun copy(name: String, sys: SysIa): SysIa {
         return SysIa(MemCloner().clone(name, sys.automaton))
+    }
+
+    override fun scope(name: String, sys: SysIa, args: List<GAction>): SysIa {
+        throw InternalIaException("scope is not supported in IAM")
     }
 }

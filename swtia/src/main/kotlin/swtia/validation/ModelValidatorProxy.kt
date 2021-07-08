@@ -109,7 +109,7 @@ class ModelValidatorProxy: IaValidator() {
         }
 
         // init section
-        checkInitSection(model.init)
+        checkInitSection(model)
 
         // stop if having error
         if (hasLocalError())
@@ -344,8 +344,8 @@ class ModelValidatorProxy: IaValidator() {
         }
     }
 
-    private fun checkInitSection(init: GModelInit) {
-        for (item in init.items) {
+    private fun checkInitSection(model: GModel) {
+        for (item in model.init.items) {
             when (item) {
                 is GSysDeclStmt -> checkSysDeclStmt(item)
                 is GSysExprStmt -> {}
@@ -353,8 +353,8 @@ class ModelValidatorProxy: IaValidator() {
         }
 
         // check all expr
-        for (sysExpr in init.eAllContents().asSequence().filterIsInstance<GSysExpr>()) {
-            checkSysExpr(sysExpr)
+        for (sysExpr in model.init.eAllContents().asSequence().filterIsInstance<GSysExpr>()) {
+            checkSysExpr(model, sysExpr)
         }
     }
 
@@ -366,13 +366,24 @@ class ModelValidatorProxy: IaValidator() {
         }
     }
 
-    private fun checkSysExpr(expr: GSysExpr) {
+    private fun checkSysExpr(model: GModel, expr: GSysExpr) {
         when (expr) {
             is GSysProcCallExpr -> checkSysProcCallExpr(expr)
             is GSysDeclRefExpr -> checkSysDeclRefExpr(expr)
             is GSysBinOpExpr -> {}
             is GSysPruneExpr -> {}
-            is GSysRestrictExpr -> {}
+            is GSysRestrictExpr -> {
+                // restrict is for IAM only
+                if (!model.isIam()) {
+                    valError(expr, ErrorMessages.restrictIsOnlySupportedInIam, IaPackage.Literals.GSYS_RESTRICT_EXPR__PARAM)
+                }
+            }
+            is GSysScopeExpr -> {
+                // scope is for MIA only
+                if (!model.isMia()) {
+                    valError(expr, ErrorMessages.scopeIsOnlySupportedInMia, IaPackage.Literals.GSYS_SCOPE_EXPR__PARAM)
+                }
+            }
         }
     }
 

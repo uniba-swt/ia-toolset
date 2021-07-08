@@ -30,17 +30,24 @@
 
 package ialib.mia.composition
 
+import ialib.core.AutomatonAction
+import ialib.iam.expr.MActionExpr
 import ialib.mia.ModalAutomaton
 import ialib.mia.ModalAutomatonBuilder
 
 /**
- * restrict operator
- * - keep tau action
- * - delete input and output action (including transition)
+ * Implement the Hiding and Restriction operator in MIA
+ * See Definition 19 (Hiding) and Definition 20 (Restriction)s
+ *
+ * In short:
+ * - input? transition is deleted
+ * - output! transition is transformed into tau
+ *
+ * For IAM: use restrict operator instead (which delete both input and output transitions)
  */
-class MiaRestrictOperation {
+class MiaScopeOperation {
 
-    fun restrict(automaton: ModalAutomaton, setArgs: Set<String>): ModalAutomaton {
+    fun scope(automaton: ModalAutomaton, setArgs: Set<String>): ModalAutomaton {
         // make sure action is available
         val set = automaton.ioActions.map { a -> a.name }.toSet()
         if (setArgs.any { act -> !set.contains(act) }) {
@@ -51,24 +58,41 @@ class MiaRestrictOperation {
         val builder = ModalAutomatonBuilder(automaton.name, automaton.initState.name)
         for (state in automaton.getIterator()) {
             for (action in state.actionsSequence) {
-                // is input or output -> delete transitions (ignore)
-                if (setArgs.contains(action.name) && action.isIo())
+
+                // if input? -> delete (mean ignore)
+                if (setArgs.contains(action.name) && action.isInput()) {
                     continue
+                }
+
+                // if output! -> transform to tau
+                var transformToTau = false
+                if (setArgs.contains(action.name) && action.isOutput()) {
+                    transformToTau = true
+                }
 
                 // must
                 for (step in state.getMustSteps(action)) {
-                    builder.addMustTransition(state.name, step.action, step.states.map { s -> s.name })
+                    val act = transformActionIfNeeded(step.action, transformToTau)
+                    builder.addMustTransition(state.name, act, step.states.map { s -> s.name })
                 }
 
                 // may
                 for (step in state.getMaySteps(action)) {
+                    val act = transformActionIfNeeded(step.action, transformToTau)
                     for (dst in step.states) {
-                        builder.addMayTransition(state.name, step.action, dst.name)
+                        builder.addMayTransition(state.name, act, dst.name)
                     }
                 }
             }
         }
 
         return builder.build()
+    }
+
+    private fun transformActionIfNeeded(action: MActionExpr, transformToTau: Boolean): MActionExpr {
+        if (!transformToTau)
+            return action
+
+        return MActionExpr.of(AutomatonAction.tau(), action.location.copy())
     }
 }

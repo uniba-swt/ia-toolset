@@ -1,0 +1,16 @@
+#mia
+
+actions { o, i}
+
+proc P {
+    act { o!, i? }
+    case {
+        o! -> i?
+        i? -> o!
+    }
+}
+
+init {
+    sys scope_in = scope(P(), i)
+    sys scope_out = scope(P(), o)
+}

@@ -39,6 +39,7 @@ interface RuntimeProviderInterface<S: SysIaBase> {
     fun createSysFromProc(name: String, proc: IrProc): S
     fun prune(name: String, sys: S): S
     fun restrict(name: String, sys: S, args: List<GAction>): S
+    fun scope(name: String, sys: S, args: List<GAction>): S
     fun product(name: String, sys1: S, sys2: S): S
     fun refinement(specificSys: S, abstractSys: S): Pair<Boolean, SimGraphInterface?>
     fun copy(name: String, sys: S): S

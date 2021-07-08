@@ -35,7 +35,7 @@ import ialib.core.refinement.SimGraphInterface
 import ialib.core.services.TextFileWriter
 import ialib.mia.ModalCloner
 import ialib.mia.composition.MiaPruner
-import ialib.mia.composition.MiaRestrictOperation
+import ialib.mia.composition.MiaScopeOperation
 import ialib.mia.composition.ModalProductOperation
 import ialib.mia.refinement.ModalBesRefinement
 import ialib.mia.simulation.DotModalSimController
@@ -46,6 +46,7 @@ import swtia.sys.SolverRuntimeUtil
 import swtia.transformation.TransformException
 import swtia.transformation.mia.MiaTransformationController
 import swtia.transformation.mir.IrProc
+import swtia.util.InternalIaException
 import swtia.util.Ulogger
 import java.nio.file.Paths
 
@@ -67,8 +68,7 @@ class MiaRuntimeProvider: RuntimeProviderInterface<MiaSysIa> {
     }
 
     override fun restrict(name: String, sys: MiaSysIa, args: List<GAction>): MiaSysIa {
-        val ia = MiaRestrictOperation().restrict(sys.automaton, args.map { a -> a.name }.toSet())
-        return MiaSysIa.of(name, ia)
+        throw InternalIaException("scope is not supported in IAM")
     }
 
     override fun product(name: String, sys1: MiaSysIa, sys2: MiaSysIa): MiaSysIa {
@@ -93,5 +93,10 @@ class MiaRuntimeProvider: RuntimeProviderInterface<MiaSysIa> {
 
     override fun copy(name: String, sys: MiaSysIa): MiaSysIa {
         return MiaSysIa(ModalCloner().clone(name, sys.automaton))
+    }
+
+    override fun scope(name: String, sys: MiaSysIa, args: List<GAction>): MiaSysIa {
+        val ia = MiaScopeOperation().scope(sys.automaton, args.map { a -> a.name }.toSet())
+        return MiaSysIa.of(name, ia)
     }
 }

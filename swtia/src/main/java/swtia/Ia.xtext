@@ -206,7 +206,7 @@ GSysExprStmt:
 ;
 
 GSysExpr:
-	GSysProcCallExpr | GSysDeclRefExpr | GSysBinOpExpr | GSysPruneExpr | GSysRestrictExpr
+	GSysProcCallExpr | GSysDeclRefExpr | GSysBinOpExpr | GSysPruneExpr | GSysRestrictExpr | GSysScopeExpr
 ;
 
 GSysProcCallExpr:
@@ -235,6 +235,11 @@ GSysPruneExpr:
 GSysRestrictExpr:
     {GSysRestrictExpr}
     'restrict' '(' param=GSysExpr (',' actions += [GAction] ) + ')'
+;
+
+GSysScopeExpr:
+    {GSysScopeExpr}
+    'scope' '(' param=GSysExpr (',' actions += [GAction] ) + ')'
 ;
 
 GDataType:

@@ -157,6 +157,7 @@ abstract class InternalSysRuntime {
                 }
             }
             is GSysRestrictExpr -> return IasStmtResult.ofSys(runtimeProvider.restrict(name, getSysFromParam(expr.param), expr.actions))
+            is GSysScopeExpr -> return IasStmtResult.ofSys(runtimeProvider.scope(name, getSysFromParam(expr.param), expr.actions))
             is GSysBinOpExpr -> {
                 val sys1 = getSysFromParam<S>(expr.param1)
                 val sys2 = getSysFromParam<S>(expr.param2)
