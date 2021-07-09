@@ -28,7 +28,7 @@
  *
  */
 
-package ialib.iam.debug
+package ialib.debug
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking

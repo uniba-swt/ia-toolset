@@ -34,9 +34,9 @@ import com.google.inject.Inject
 import ialib.core.refinement.SimGraphInterface
 import ialib.core.services.TextFileWriter
 import ialib.mia.ModalCloner
-import ialib.mia.composition.MiaPruner
-import ialib.mia.composition.MiaScopeOperation
-import ialib.mia.composition.ModalProductOperation
+import ialib.mia.prune.ModalPruner
+import ialib.mia.scope.ModalScopeOperation
+import ialib.mia.product.ModalProductOperation
 import ialib.mia.refinement.ModalBesRefinement
 import ialib.mia.simulation.DotModalSimController
 import swtia.ia.GAction
@@ -63,7 +63,7 @@ class MiaRuntimeProvider: RuntimeProviderInterface<MiaSysIa> {
     }
 
     override fun prune(name: String, sys: MiaSysIa): MiaSysIa {
-        val ia = MiaPruner(sys.automaton, name).prune()
+        val ia = ModalPruner(sys.automaton, name).prune()
         return MiaSysIa.of(name, ia)
     }
 
@@ -96,7 +96,7 @@ class MiaRuntimeProvider: RuntimeProviderInterface<MiaSysIa> {
     }
 
     override fun scope(name: String, sys: MiaSysIa, args: List<GAction>): MiaSysIa {
-        val ia = MiaScopeOperation().scope(sys.automaton, args.map { a -> a.name }.toSet())
+        val ia = ModalScopeOperation().scope(sys.automaton, args.map { a -> a.name }.toSet())
         return MiaSysIa.of(name, ia)
     }
 }

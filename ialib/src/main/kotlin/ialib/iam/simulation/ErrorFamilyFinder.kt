@@ -28,13 +28,9 @@
  *
  */
 
-package ialib.iam.json.sim
+package ialib.iam.simulation
 
 import ialib.Ulogger
-import ialib.iam.simulation.FamiliesSimStep
-import ialib.iam.simulation.RefinementStep
-import ialib.iam.simulation.SimGraph
-import ialib.iam.simulation.SimMemState
 
 class ErrorFamilyFinder(private val ia: SimGraph) {
     private val mapErrorStates = mutableSetOf<String>()
@@ -112,7 +108,7 @@ class ErrorFamilyFinder(private val ia: SimGraph) {
         return false
     }
 
-    fun findErrorFamily(state: SimMemState, familySteps: MutableList<FamiliesSimStep>): FamiliesSimStep {
+    fun findErrorFamily(familySteps: MutableList<FamiliesSimStep>): FamiliesSimStep {
         // error first
         for (familyStep in familySteps) {
             if (familyStep.errorNoFamilies)

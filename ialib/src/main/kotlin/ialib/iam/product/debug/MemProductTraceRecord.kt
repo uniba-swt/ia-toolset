@@ -28,41 +28,24 @@
  *
  */
 
-package ialib.iam.nfasim
+package ialib.iam.product.debug
 
-import ialib.iam.MemAutomaton
-import ialib.iam.expr.solver.DefaultSmtSolver
-import ialib.iam.simulation.SimMemState
+import ialib.iam.MemStep
+import ialib.debug.json.TextLocationItem
+import ialib.debug.json.TextLocationItem.Companion.toTextLocationItem
 
-class DefaultMemSimProvider(solver: DefaultSmtSolver, specificIa: MemAutomaton, abstractIa: MemAutomaton)
-    : AbstractMemSimTraversor(solver, specificIa, abstractIa) {
+open class MemProductTraceRecord(private val title: String, private val originStep1: MemStep?, private val originStep2: MemStep?) {
 
-    override fun postProcessSimState(state: SimMemState, queueProvider: (SimMemState) -> Unit) {
+    constructor(step: MemStep, originStep1: MemStep?, originStep2: MemStep?)
+            : this(step.toString(), originStep1, originStep2)
 
-        // actions and steps
-        for (result in state.actionResults) {
+    fun toTextLocationItem(): TextLocationItem {
 
-            // check state
-            if (result.stateSteps.isNotEmpty()) {
-                result.stateSteps.forEach { dst ->
-                    queueProvider(dst)
-                }
-            }
+        // locations of action only
+        val children = sequenceOf(originStep1, originStep2).map { st ->
+            st?.toTextLocationItem() ?: TextLocationItem("Independent transition", emptyList(), emptyList())
+        }.toList()
 
-            // check familySteps
-            for (familyStep in result.familySteps) {
-                // to the point for family
-                if (familyStep.families.isNotEmpty()) {
-                    // families
-                    for (family in familyStep.families) {
-                        // each member in family
-                        for (refinedStep in family.refinedSteps) {
-                            // create new state
-                            queueProvider(refinedStep.dstSimState)
-                        }
-                    }
-                }
-            }
-        }
+        return TextLocationItem(title, emptyList(), children)
     }
 }

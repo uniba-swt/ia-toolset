@@ -28,7 +28,7 @@
  *
  */
 
-package ialib.iam.composition
+package ialib.iam.product
 
 import ialib.Ulogger.debugIfEnabled
 import ialib.core.AutomatonAction
@@ -45,7 +45,7 @@ import ialib.iam.expr.solver.DefaultSmtSolver
 import org.apache.log4j.Logger
 import java.util.function.Consumer
 
-open class IamProductOperation(
+open class MemProductOperation(
     private val solver: DefaultSmtSolver,
     private val ia1: MemAutomaton,
     private val ia2: MemAutomaton,
@@ -358,6 +358,6 @@ open class IamProductOperation(
     }
 
     companion object {
-        private val logger = Logger.getLogger(IamProductOperation::class.java)
+        private val logger = Logger.getLogger(MemProductOperation::class.java)
     }
 }

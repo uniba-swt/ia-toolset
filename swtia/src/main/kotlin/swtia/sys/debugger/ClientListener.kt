@@ -30,7 +30,7 @@
 
 package swtia.sys.debugger
 
-import ialib.iam.composition.debug.MemProductTraceRecord
+import ialib.iam.product.debug.MemProductTraceRecord
 
 interface ClientListener {
     fun stopOnEntry()

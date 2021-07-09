@@ -28,7 +28,7 @@
  *
  */
 
-package ialib.iam.nfasim
+package ialib.iam.simulation
 
 import com.google.common.escape.Escaper
 import com.google.common.html.HtmlEscapers
@@ -36,7 +36,6 @@ import ialib.core.services.TextFileWriter
 import ialib.core.simulation.SimAction
 import ialib.core.simulation.RefinementType
 import ialib.dot.StringRenderer
-import ialib.iam.simulation.*
 import ialib.util.ColorUtil
 import ialib.util.StringUtil
 

@@ -31,8 +31,8 @@
 package swtia.ide.json
 
 import ialib.iam.MemStep
-import ialib.iam.json.TextLocationItem
-import ialib.iam.json.TextLocationItem.Companion.toTextLocationItem
+import ialib.debug.json.TextLocationItem
+import ialib.debug.json.TextLocationItem.Companion.toTextLocationItem
 
 data class TransitionJsonModel(val id: String, val dstId: String, val textLocation: TextLocationItem) {
     companion object {

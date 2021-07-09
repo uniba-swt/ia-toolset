@@ -33,7 +33,7 @@ package swtia.ide.json
 import ialib.core.simulation.RefinementType
 import ialib.core.simulation.SimAction
 import ialib.iam.MemStep
-import ialib.iam.json.sim.ErrorFamilyFinder
+import ialib.iam.simulation.ErrorFamilyFinder
 import ialib.iam.simulation.SimActionResult
 import ialib.iam.simulation.SimGraph
 import ialib.iam.simulation.SimMemState
@@ -140,7 +140,7 @@ object ErrorSimGraphJsonFactory {
         // check family
         if (this.familySteps.isNotEmpty()) {
             // attack the first one
-            val familyStep = finder.findErrorFamily(simMemState, this.familySteps)
+            val familyStep = finder.findErrorFamily(this.familySteps)
             val attack = SimOptionAttackJson(
                 simAction.edgeType,
                 familyStep.step.id)

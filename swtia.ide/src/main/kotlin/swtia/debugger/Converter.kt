@@ -32,9 +32,9 @@ package swtia.debugger
 
 import org.eclipse.lsp4j.debug.*
 import swtia.sys.debugger.IaDebugger
-import ialib.iam.debug.IaBreakpoint
-import ialib.iam.debug.IaScope
-import ialib.iam.debug.IaStackFrame
+import ialib.debug.IaBreakpoint
+import ialib.debug.IaScope
+import ialib.debug.IaStackFrame
 import kotlin.io.path.Path
 
 object Converter {

@@ -30,7 +30,7 @@
 
 package swtia.debugger.iad
 
-import ialib.iam.composition.debug.MemProductTraceRecord
+import ialib.iam.product.debug.MemProductTraceRecord
 import org.eclipse.lsp4j.debug.StoppedEventArguments
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason
 import org.eclipse.lsp4j.debug.TerminatedEventArguments

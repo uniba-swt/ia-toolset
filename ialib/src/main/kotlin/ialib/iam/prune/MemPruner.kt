@@ -28,42 +28,49 @@
  *
  */
 
-package ialib.iam.composition
+package ialib.iam.prune
 
+import ialib.core.pruner.PrunerBase
 import ialib.iam.MemAutomaton
 import ialib.iam.MemAutomatonBuilder
+import ialib.iam.MemState
 
-class IamRestrictOperation {
+class MemPruner(ia: MemAutomaton, private val name: String): PrunerBase<MemAutomaton, MemState>(ia) {
 
-    /**
-     * restrict operator
-     * - keep tau action
-     * - delete input and output action (including transition)
-     */
-    fun restrict(automaton: MemAutomaton, setArgs: Set<String>): MemAutomaton {
-        // make sure action is available
-        val set = automaton.ioActions.map { a -> a.name }.toSet()
-        if (setArgs.any { act -> !set.contains(act) }) {
-            throw Exception("actions are not used in the sys '${automaton.name}': $setArgs")
+    override fun getAutonomousDstStates(src: MemState): Sequence<MemState> {
+        return sequence {
+            for ((action, steps) in src.mapSteps) {
+                if (action.isOutputOrInternal()) {
+                    for (step in steps) {
+                        yield(step.dstState)
+                    }
+                }
+            }
         }
+    }
 
-        // build new
-        val builder = MemAutomatonBuilder(automaton.name, automaton.initState.name, automaton.decls)
-        for (state in automaton.getIterator()) {
-            for ((action, steps) in state.mapSteps) {
+    override fun getInitState(): MemState {
+        return ia.initState
+    }
 
-                // is input or output -> delete transitions (ignore)
-                if (setArgs.contains(action.name) && action.isIo())
-                    continue
-
-                // add step
+    override fun rebuildIa(errorStates: Set<String>): MemAutomaton {
+        val builder = MemAutomatonBuilder(name, ia.initState.name, ia.decls)
+        for (st in ia.getIterator()) {
+            if (errorStates.contains(st.name))
+                continue
+            
+            // add transition
+            for ((action, steps) in st.mapSteps) {
                 for (step in steps) {
-                    builder.addTransition(state.name, step.dstState.name, step.action, step.preCond, step.postCond)
+                    if (action.isOutputOrInternal() && errorStates.contains(step.dstState.name))
+                        continue
+
+                    // add
+                    builder.addTransition(st.name, step.dstState.name, step.action, step.preCond, step.postCond)
                 }
             }
         }
 
-        // phase 2: remove
         return builder.build()
     }
 }

@@ -28,18 +28,44 @@
  *
  */
 
-package ialib.mia.composition
+package ialib.util
 
-import ialib.core.AbstractState
-import ialib.mia.ModalState
-import ialib.core.simulation.AbstractSimState
+import ialib.iam.product.DebugMemProductOperation
 
-class ProductModalState(val st1: ModalState, val st2: ModalState) : AbstractSimState() {
+object EventBus {
+    private var consumer: ((EventBusMessage) -> Any)? = null
 
-    override val baseSpecState: AbstractState
-        get() = st1
+    fun publish(msg: EventBusMessage) {
+        consumer?.invoke(msg)
+    }
 
-    override val baseImplState: AbstractState
-        get() = st2
+    fun subscribe(obj: (EventBusMessage) -> Any) {
+        consumer = obj
+    }
+}
 
+abstract class EventBusMessage {
+}
+
+class ProductBusMessage(val sender: DebugMemProductOperation, val type: ProductBusType, val msg: String? = null): EventBusMessage()
+
+enum class ProductBusType {
+    WillStart,
+    Ended,
+    WillProcessState,
+    EndedProcessState,
+    ErrorState,
+}
+
+class StmtBusMessage(val type: StmtBusType, val arg: Any? = null): EventBusMessage() {
+
+}
+
+enum class StmtBusType {
+    InitWillStart,
+    InitEnded,
+    StmtWillStart,
+    StmtEnded,
+    Exception,
+    Shutdown
 }

@@ -30,9 +30,8 @@
 
 package swtia.sys.debugger
 
-import ialib.iam.debug.IaScope
-import ialib.iam.debug.IaStackFrame
-import ialib.iam.expr.MLocation
+import ialib.debug.IaScope
+import ialib.debug.IaStackFrame
 import ialib.util.EventBus
 import ialib.util.StmtBusMessage
 import ialib.util.StmtBusType

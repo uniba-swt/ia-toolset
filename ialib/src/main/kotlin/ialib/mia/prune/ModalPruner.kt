@@ -28,14 +28,14 @@
  *
  */
 
-package ialib.mia.composition
+package ialib.mia.prune
 
 import ialib.core.pruner.PrunerBase
 import ialib.mia.ModalAutomaton
 import ialib.mia.ModalAutomatonBuilder
 import ialib.mia.ModalState
 
-class MiaPruner(ia: ModalAutomaton, private val name: String): PrunerBase<ModalAutomaton, ModalState>(ia) {
+class ModalPruner(ia: ModalAutomaton, private val name: String): PrunerBase<ModalAutomaton, ModalState>(ia) {
 
     override fun getAutonomousDstStates(src: ModalState): Sequence<ModalState> {
         return sequence {

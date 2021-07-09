@@ -30,9 +30,8 @@
 
 package swtia.debugger.iad.models
 
-import ialib.iam.composition.debug.MemProductTraceRecord
-import ialib.iam.json.TextLocationItem
-import ialib.iam.json.TextLocationItem.Companion.toTextLocationItem
+import ialib.iam.product.debug.MemProductTraceRecord
+import ialib.debug.json.TextLocationItem
 
 class ProductTracesNotification(val items: List<TextLocationItem>) {
     companion object {

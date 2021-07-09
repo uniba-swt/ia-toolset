@@ -45,6 +45,3 @@ abstract class MBinExpr(val lhs: MExpr, val rhs: MExpr, val binOp: MBinOp): MExp
     }
 }
 
-interface MBinOp {
-    fun format(): String = toString()
-}

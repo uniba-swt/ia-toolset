@@ -35,7 +35,7 @@ import ialib.core.AbstractAutomaton
 import ialib.iam.MemAutomaton
 import ialib.iam.MemState
 import ialib.iam.expr.solver.DefaultSmtSolver
-import ialib.iam.nfasim.DefaultMemSimProvider
+import ialib.iam.simulation.DefaultMemSimProvider
 import ialib.iam.simulation.SimGraph
 import ialib.simpleia.refinement.bes.AbstractBesRefinementOperation
 import ialib.solvers.PbesSolver

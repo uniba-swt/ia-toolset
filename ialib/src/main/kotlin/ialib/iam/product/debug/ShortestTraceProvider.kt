@@ -28,9 +28,9 @@
  *
  */
 
-package ialib.iam.composition.debug
+package ialib.iam.product.debug
 
-import ialib.iam.composition.ProductMemState
+import ialib.iam.product.ProductMemState
 import org.jgrapht.Graph
 import org.jgrapht.graph.builder.GraphTypeBuilder
 import org.jgrapht.traverse.DepthFirstIterator

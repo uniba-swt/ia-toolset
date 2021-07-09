@@ -28,15 +28,15 @@
  *
  */
 
-package ialib.iam.composition
+package ialib.iam.product
 
 import ialib.iam.MemAutomaton
 import ialib.iam.MemState
 import ialib.iam.MemStep
-import ialib.iam.composition.debug.MemProductStackFrame
-import ialib.iam.composition.debug.MemProductTraceRecord
-import ialib.iam.composition.debug.ShortestTraceProvider
-import ialib.iam.debug.DebugSession
+import ialib.iam.product.debug.MemProductStackFrame
+import ialib.iam.product.debug.MemProductTraceRecord
+import ialib.iam.product.debug.ShortestTraceProvider
+import ialib.debug.DebugSession
 import ialib.iam.expr.MActionExpr
 import ialib.iam.expr.MLocation
 import ialib.iam.expr.solver.DefaultSmtSolver
@@ -45,8 +45,8 @@ import ialib.util.ProductBusMessage
 import ialib.util.ProductBusType
 import java.util.function.Consumer
 
-class DebugIamProductOperation(solver: DefaultSmtSolver, ia1: MemAutomaton, ia2: MemAutomaton, name: String)
-    :IamProductOperation(solver, ia1, ia2, name) {
+class DebugMemProductOperation(solver: DefaultSmtSolver, ia1: MemAutomaton, ia2: MemAutomaton, name: String)
+    :MemProductOperation(solver, ia1, ia2, name) {
 
     val frame = MemProductStackFrame(2, "product")
 

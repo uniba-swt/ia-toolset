@@ -31,11 +31,11 @@
 package swtia.sys.debugger
 
 import com.google.inject.Inject
-import ialib.iam.composition.debug.MemProductStackFrame
-import ialib.iam.debug.DebugSession
-import ialib.iam.debug.IaBreakpoint
-import ialib.iam.debug.IaScope
-import ialib.iam.debug.IaStackFrame
+import ialib.iam.product.debug.MemProductStackFrame
+import ialib.debug.DebugSession
+import ialib.debug.IaBreakpoint
+import ialib.debug.IaScope
+import ialib.debug.IaStackFrame
 import ialib.util.*
 import kotlinx.coroutines.*
 import org.apache.log4j.Logger

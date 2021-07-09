@@ -28,28 +28,40 @@
  *
  */
 
-package ialib.iam.debug
+package ialib.iam.simulation
 
-import ialib.iam.expr.MLocation
+import ialib.iam.MemAutomaton
+import ialib.iam.expr.solver.DefaultSmtSolver
 
-open class IaStackFrame(val id: Int, val name: String) {
+class DefaultMemSimProvider(solver: DefaultSmtSolver, specificIa: MemAutomaton, abstractIa: MemAutomaton)
+    : AbstractMemSimTraversor(solver, specificIa, abstractIa) {
 
-    val locations = mutableListOf<MLocation>()
+    override fun postProcessSimState(state: SimMemState, queueProvider: (SimMemState) -> Unit) {
 
-    var loc: MLocation = MLocation.empty()
-        private set
+        // actions and steps
+        for (result in state.actionResults) {
 
-    fun updateLocations(items: Collection<MLocation>) {
-        locations.clear()
-        locations.addAll(items)
-        items.firstOrNull()?.also { loc = it }
-    }
+            // check state
+            if (result.stateSteps.isNotEmpty()) {
+                result.stateSteps.forEach { dst ->
+                    queueProvider(dst)
+                }
+            }
 
-    fun updateLocation(loc: MLocation) {
-        updateLocations(listOf(loc))
-    }
-
-    fun markCurrentLoc(location: MLocation) {
-        loc = location
+            // check familySteps
+            for (familyStep in result.familySteps) {
+                // to the point for family
+                if (familyStep.families.isNotEmpty()) {
+                    // families
+                    for (family in familyStep.families) {
+                        // each member in family
+                        for (refinedStep in family.refinedSteps) {
+                            // create new state
+                            queueProvider(refinedStep.dstSimState)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

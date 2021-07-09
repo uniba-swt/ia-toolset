@@ -28,24 +28,11 @@
  *
  */
 
-package ialib.iam.composition.debug
+package ialib.iam.product.debug
 
-import ialib.iam.MemStep
-import ialib.iam.json.TextLocationItem
-import ialib.iam.json.TextLocationItem.Companion.toTextLocationItem
+import ialib.debug.IaStackFrame
+import java.util.*
 
-open class MemProductTraceRecord(private val title: String, private val originStep1: MemStep?, private val originStep2: MemStep?) {
-
-    constructor(step: MemStep, originStep1: MemStep?, originStep2: MemStep?)
-            : this(step.toString(), originStep1, originStep2)
-
-    fun toTextLocationItem(): TextLocationItem {
-
-        // locations of action only
-        val children = sequenceOf(originStep1, originStep2).map { st ->
-            st?.toTextLocationItem() ?: TextLocationItem("Independent transition", emptyList(), emptyList())
-        }.toList()
-
-        return TextLocationItem(title, emptyList(), children)
-    }
+class MemProductStackFrame(id: Int, name: String): IaStackFrame(id, name) {
+    val traces = Stack<MemProductTraceRecord>()
 }

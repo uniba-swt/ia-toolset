@@ -28,7 +28,7 @@
  *
  */
 
-package ialib.mia.composition
+package ialib.mia.product
 
 import ialib.Ulogger
 import ialib.core.AutomatonAction

@@ -28,6 +28,17 @@
  *
  */
 
-package ialib.iam.debug
+package ialib.iam.product
 
-data class IaBreakpoint(val line: Int)
+import ialib.core.AbstractState
+import ialib.iam.MemState
+import ialib.core.simulation.AbstractSimState
+
+open class ProductMemState(val st1: MemState, val st2: MemState) : AbstractSimState() {
+    val cmpMemState: MemState = MemState(id, isInit)
+    override val baseSpecState: AbstractState
+        get() = st1
+    override val baseImplState: AbstractState
+        get() = st2
+
+}

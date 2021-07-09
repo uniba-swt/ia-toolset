@@ -35,10 +35,10 @@ import ialib.core.refinement.SimGraphInterface
 import ialib.core.services.TextFileWriter
 import ialib.iam.MemAutomaton
 import ialib.iam.MemCloner
-import ialib.iam.composition.DebugIamProductOperation
-import ialib.iam.composition.IamPruner
-import ialib.iam.composition.IamRestrictOperation
-import ialib.iam.nfasim.DotMemSimController
+import ialib.iam.product.DebugMemProductOperation
+import ialib.iam.prune.MemPruner
+import ialib.iam.restrict.MemRestrictOperation
+import ialib.iam.simulation.DotMemSimController
 import ialib.iam.refinement.MemBesRefinementOperation
 import swtia.ia.GAction
 import swtia.startup.OperatorOptions
@@ -65,19 +65,19 @@ class IamRuntimeProvider: RuntimeProviderInterface<SysIa> {
     }
 
     override fun prune(name: String, sys: SysIa): SysIa {
-        val pruner = IamPruner(sys.automaton, name)
+        val pruner = MemPruner(sys.automaton, name)
         return SysIa.of(name, pruner.prune())
     }
 
     override fun restrict(name: String, sys: SysIa, args: List<GAction>): SysIa {
-        val op = IamRestrictOperation()
+        val op = MemRestrictOperation()
         val ia: MemAutomaton = op.restrict(sys.automaton, args.map { a -> a.name }.toSet())
         return SysIa.of(name, ia)
     }
 
     override fun product(name: String, sys1: SysIa, sys2: SysIa): SysIa {
         val solver = SolverRuntimeUtil.loadSmtSolver()
-        val handler = DebugIamProductOperation(solver, sys1.automaton, sys2.automaton, name)
+        val handler = DebugMemProductOperation(solver, sys1.automaton, sys2.automaton, name)
         val ia = handler.build()
         return SysIa.of(name, ia)
     }

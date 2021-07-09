@@ -28,11 +28,18 @@
  *
  */
 
-package ialib.iam.composition.debug
+package ialib.mia.product
 
-import ialib.iam.debug.IaStackFrame
-import java.util.*
+import ialib.core.AbstractState
+import ialib.mia.ModalState
+import ialib.core.simulation.AbstractSimState
 
-class MemProductStackFrame(id: Int, name: String): IaStackFrame(id, name) {
-    val traces = Stack<MemProductTraceRecord>()
+class ProductModalState(val st1: ModalState, val st2: ModalState) : AbstractSimState() {
+
+    override val baseSpecState: AbstractState
+        get() = st1
+
+    override val baseImplState: AbstractState
+        get() = st2
+
 }

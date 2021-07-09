@@ -28,7 +28,7 @@
  *
  */
 
-package ialib.iam.nfasim
+package ialib.iam.simulation
 
 import ialib.core.refinement.RefinementUtil
 import ialib.core.simulation.AbstractSimTraversor

@@ -33,7 +33,7 @@ package swtia.sys.runtime
 import com.google.inject.Inject
 import ialib.core.CoreException
 import ialib.iam.MemAutomaton
-import ialib.iam.debug.DebugSession
+import ialib.debug.DebugSession
 import ialib.mia.ModalAutomaton
 import swtia.ia.*
 import swtia.sys.IaRuntimeException

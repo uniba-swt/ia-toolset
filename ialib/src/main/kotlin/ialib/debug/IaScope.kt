@@ -28,7 +28,7 @@
  *
  */
 
-package ialib.iam.debug
+package ialib.debug
 
 class IaScope private constructor(val name: String, val variablesReference: Int) {
     companion object {

@@ -28,26 +28,28 @@
  *
  */
 
-package ialib.iam.json
+package ialib.debug
 
-import ialib.iam.MemStep
-import ialib.iam.expr.MExpr
 import ialib.iam.expr.MLocation
 
-/**
- * This is used for Debug Adapter Protocol (converted to JSON object)
- */
-class TextLocationItem(val text: String, val locations: List<MLocation>, val children: List<TextLocationItem>, val id: String = "") {
-    companion object {
-        fun MemStep.toTextLocationItem(): TextLocationItem {
-            val exprs = listOf(this.preCond, this.action, this.postCond)
-            val loc = exprs.map { ex -> ex.mergeLocation() }.filter { l -> !l.isEmpty() }
-            val children = exprs.map { ex -> ex.toTextLocationItem() }
-            return TextLocationItem(this.toString(), loc, children, this.id)
-        }
+open class IaStackFrame(val id: Int, val name: String) {
 
-        private fun MExpr.toTextLocationItem(): TextLocationItem {
-            return TextLocationItem(this.toString(), listOf(this.mergeLocation()).filter { l -> !l.isEmpty() }, emptyList())
-        }
+    val locations = mutableListOf<MLocation>()
+
+    var loc: MLocation = MLocation.empty()
+        private set
+
+    fun updateLocations(items: Collection<MLocation>) {
+        locations.clear()
+        locations.addAll(items)
+        items.firstOrNull()?.also { loc = it }
+    }
+
+    fun updateLocation(loc: MLocation) {
+        updateLocations(listOf(loc))
+    }
+
+    fun markCurrentLoc(location: MLocation) {
+        loc = location
     }
 }

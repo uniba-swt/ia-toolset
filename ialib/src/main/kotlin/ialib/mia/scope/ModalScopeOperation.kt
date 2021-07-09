@@ -28,7 +28,7 @@
  *
  */
 
-package ialib.mia.composition
+package ialib.mia.scope
 
 import ialib.core.AutomatonAction
 import ialib.iam.expr.MActionExpr
@@ -45,7 +45,7 @@ import ialib.mia.ModalAutomatonBuilder
  *
  * For IAM: use restrict operator instead (which delete both input and output transitions)
  */
-class MiaScopeOperation {
+class ModalScopeOperation {
 
     fun scope(automaton: ModalAutomaton, setArgs: Set<String>): ModalAutomaton {
         // make sure action is available

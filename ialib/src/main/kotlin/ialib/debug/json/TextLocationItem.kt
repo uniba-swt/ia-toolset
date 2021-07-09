@@ -28,44 +28,26 @@
  *
  */
 
-package ialib.util
+package ialib.debug.json
 
-import ialib.iam.composition.DebugIamProductOperation
+import ialib.iam.MemStep
+import ialib.iam.expr.MExpr
+import ialib.iam.expr.MLocation
 
-object EventBus {
-    private var consumer: ((EventBusMessage) -> Any)? = null
+/**
+ * This is used for Debug Adapter Protocol (converted to JSON object)
+ */
+class TextLocationItem(val text: String, val locations: List<MLocation>, val children: List<TextLocationItem>, val id: String = "") {
+    companion object {
+        fun MemStep.toTextLocationItem(): TextLocationItem {
+            val exprs = listOf(this.preCond, this.action, this.postCond)
+            val loc = exprs.map { ex -> ex.mergeLocation() }.filter { l -> !l.isEmpty() }
+            val children = exprs.map { ex -> ex.toTextLocationItem() }
+            return TextLocationItem(this.toString(), loc, children, this.id)
+        }
 
-    fun publish(msg: EventBusMessage) {
-        consumer?.invoke(msg)
+        private fun MExpr.toTextLocationItem(): TextLocationItem {
+            return TextLocationItem(this.toString(), listOf(this.mergeLocation()).filter { l -> !l.isEmpty() }, emptyList())
+        }
     }
-
-    fun subscribe(obj: (EventBusMessage) -> Any) {
-        consumer = obj
-    }
-}
-
-abstract class EventBusMessage {
-}
-
-class ProductBusMessage(val sender: DebugIamProductOperation, val type: ProductBusType, val msg: String? = null): EventBusMessage()
-
-enum class ProductBusType {
-    WillStart,
-    Ended,
-    WillProcessState,
-    EndedProcessState,
-    ErrorState,
-}
-
-class StmtBusMessage(val type: StmtBusType, val arg: Any? = null): EventBusMessage() {
-
-}
-
-enum class StmtBusType {
-    InitWillStart,
-    InitEnded,
-    StmtWillStart,
-    StmtEnded,
-    Exception,
-    Shutdown
 }
