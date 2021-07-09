@@ -84,7 +84,7 @@ export function registerCommands(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.commands.registerCommand(
         RunCommand.Id,
-        async (arg) => await RunCommand.execute(arg)))
+        async (arg) => await RunCommand.executeAsync(arg)))
 
     context.subscriptions.push(vscode.commands.registerCommand(
         ReloadIdeCommand.Id,

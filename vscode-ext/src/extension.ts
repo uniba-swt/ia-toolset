@@ -37,6 +37,7 @@ import { activateRefinementView } from './lsp/refinement-tree/refinement-view'
 import { registerCommands } from './commands/ia-commands'
 import { activateProcessView } from './lsp/explore-process/explore-process-view'
 import { initProductView } from './debugger/product/product-view'
+import { BinBundleUtil } from './util/bin-bundle-util'
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -58,6 +59,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     // process
     activateProcessView(context)
+
+    // check tools
+    BinBundleUtil.ensureToolsAreInstalled()
 }
 
 export async function deactivate() {

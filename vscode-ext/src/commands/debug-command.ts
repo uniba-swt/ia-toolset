@@ -30,12 +30,14 @@
 
 import * as vscode from 'vscode'
 import { DebugUtil } from '../debugger/debug-util'
+import { BinBundleUtil } from '../util/bin-bundle-util'
 
 export class DebugCommand {
 
     public static Id = 'ia-toolset.cmdDebug'
 
     public static execute() {
+        BinBundleUtil.ensureToolsAreInstalled()
         vscode.debug.startDebugging(undefined, DebugUtil.createConfiguration())
     }
 }

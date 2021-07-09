@@ -31,12 +31,15 @@
 import { lsp, LspManager } from '../lsp/ia-lsp'
 import { IaEndpoints, RunRequest, RunResponse } from '../lsp/lsp-messages'
 import * as vscode from 'vscode'
+import { BinBundleUtil } from '../util/bin-bundle-util'
 
 export class RunCommand {
 
     public static Id = 'ia-toolset.cmdRun'
 
-    public static async execute(uri: String | undefined) {
+    public static async executeAsync(uri: String | undefined) {
+
+        BinBundleUtil.ensureToolsAreInstalled()
         if (!lsp.ensureLspIsReady()) {
             return
         }
