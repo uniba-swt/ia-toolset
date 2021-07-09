@@ -55,7 +55,7 @@ export class BinBundleUtil {
     private static tools: ToolInfo[] = [
         <ToolInfo>{
             name: 'Java 11',
-            cmd: 'java1 --version',
+            cmd: 'java --version',
             installLink: 'https://adoptopenjdk.net/?variant=openjdk11&jvmVariant=hotspot'
         },
         <ToolInfo>{

@@ -2,7 +2,7 @@
   "name": "ia-toolset",
   "displayName": "IA Toolset",
   "description": "IDE plugin with LSP server for Interface Automata, debugger, refinement checker and simulator",
-  "publisher": "trinnguyen",
+  "publisher": "uniba-swt",
   "repository": "https://github.com/uniba-swt/ia-toolset",
   "version": "1.0.0",
   "engines": {
