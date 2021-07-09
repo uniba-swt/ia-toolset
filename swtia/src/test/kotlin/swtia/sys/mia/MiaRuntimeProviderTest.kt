@@ -31,13 +31,16 @@
 package swtia.sys.mia
 
 import com.google.inject.Inject
+import org.checkerframework.common.value.qual.StringVal
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import swtia.startup.StandaloneApp
+import swtia.sys.IaRuntimeException
 import swtia.tests.IaInjectorProvider
 import swtia.util.TestHelper
 
@@ -167,5 +170,44 @@ class MiaRuntimeProviderTest {
         val path = TestHelper.getPathFromResources(filename)
         val res = standaloneApp.execRuntime(path)
         assertEquals(true, res.isSat)
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "#mia actions { a } proc P { act { a? } a? } proc Q { act { a? } a? } init { sys p1 = product(P(), Q()) }",
+        ],
+    )
+    fun validProductInputInput(src: String) {
+        val pair = standaloneApp.execModel(testHelper.validate(src))
+        assertTrue(pair.isSat)
+        val init = pair.runtimeData!!.getMiaSys("p1").automaton.initState
+        assertEquals("a?", init.actionsSequence.joinToString())
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "#mia actions { a } proc P { act { a? } a? } proc Q { act { a! } a! } init { sys p1 = product(P(), Q()) }",
+            "#mia actions { a } proc P { act { a! } a! } proc Q { act { a? } a? } init { sys p1 = product(P(), Q()) }",
+        ],
+    )
+    fun validProductInputOutput(src: String) {
+        val pair = standaloneApp.execModel(testHelper.validate(src))
+        assertTrue(pair.isSat)
+        val init = pair.runtimeData!!.getMiaSys("p1").automaton.initState
+        assertEquals("a!", init.actionsSequence.joinToString())
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "#mia actions { a } proc P { act { a! } a! } proc Q { act { a! } a! } init { sys p1 = product(P(), Q()) }",
+        ],
+    )
+    fun errorProductOutputOutput(src: String) {
+        val res = standaloneApp.execModel(testHelper.validate(src))
+        assertFalse(res.isSat)
+        assertTrue(res.errorMsg?.contains("Automata are not composable:") ?: false)
     }
 }

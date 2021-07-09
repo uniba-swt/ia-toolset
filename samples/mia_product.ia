@@ -1,0 +1,43 @@
+// Multicast parallel product: https://www.swt-bamberg.de/luettgen/presentations/pdf/Leuven2016.pdf
+
+#mia
+
+actions { a, b, c, d }
+
+proc P {
+    act { a?, b!, c!, d! }
+    a?
+    case {
+        b! -> c!
+        d! -> {}
+    }
+}
+
+proc Q {
+    act { b?, c?, d? }
+    case {
+        b? -> {}
+        d? -> {}
+    }
+}
+
+proc QMay {
+    act { a?, b?, c?, d? }
+    a?
+    case {
+        may b? -> {}
+        may d? -> {}
+    }
+}
+
+proc QDisjunctive {
+    act { a?, b?, c?, d? }
+    a? ; b? or d?
+}
+
+init {
+    sys p1 = product(P(), Q())
+    sys compose = prune(p1)
+    sys p_may = product(P(), QMay())
+    sys p_disjunctive = product(P(), QDisjunctive())
+}

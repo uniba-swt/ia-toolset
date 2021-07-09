@@ -32,10 +32,8 @@ package ialib.mia.product
 
 import ialib.Ulogger
 import ialib.core.AutomatonAction
-import ialib.core.AutomatonActionType
 import ialib.core.CoreException
 import ialib.core.product.ProductUtil
-import ialib.core.product.ProductUtil.computeSharedIOActions
 import ialib.core.simulation.AbstractSimTraversor
 import ialib.iam.expr.MActionExpr
 import ialib.mia.ModalAutomaton
@@ -44,26 +42,30 @@ import ialib.mia.ModalState
 import ialib.mia.ModalStep
 import java.util.function.Consumer
 
-open class ModalProductOperation : AbstractSimTraversor<ProductModalState>() {
+/**
+ * Implement MIA product, in short:
+ * a? x a! => a!
+ * a! x a! => error
+ * a? x a? => a?
+ *
+ * Check: https://www.swt-bamberg.de/luettgen/presentations/pdf/Leuven2016.pdf
+ */
+class ModalProductOperation : AbstractSimTraversor<ProductModalState>() {
 
     private lateinit var sharedActNames: Set<String>
     private lateinit var builder: ModalAutomatonBuilder
 
     fun build(ia1: ModalAutomaton, ia2: ModalAutomaton): ModalAutomaton {
         // composable
-        if (!ProductUtil.isComposable(
-                ia1.inputActions,
+        if (!isMiaComposable(
                 ia1.outputActions,
-                emptySet(),
-                ia2.inputActions,
                 ia2.outputActions,
-                emptySet()
         )) {
             throw CoreException(ProductUtil.formatNotComposableMessage(ia1, ia2))
         }
 
         // shared action based on name (input/output action only)
-        sharedActNames = computeSharedIOActions(
+        sharedActNames = computeActions(
             ia1.inputActions,
             ia1.outputActions,
             ia2.inputActions,
@@ -72,42 +74,28 @@ open class ModalProductOperation : AbstractSimTraversor<ProductModalState>() {
 
         // prepare
         val init = ProductModalState(ia1.initState, ia2.initState)
-        builder = ModalAutomatonBuilder("${getNamePrefix()}_${ia1.name}_${ia2.name}", init.id)
+        builder = ModalAutomatonBuilder("Product_${ia1.name}_${ia2.name}", init.id)
         start(init)
 
         // finish
         return builder.build()
     }
 
-    protected open fun getNamePrefix(): String {
-        return "Product"
-    }
-
     override fun processSimState(state: ProductModalState, queueProvider: Consumer<ProductModalState>) {
-        // cross/empty for output 1
-        for (outputAction in state.st1.outputActions) {
-            if (sharedActNames.contains(outputAction.name)) {
-                if (!processSharedOutputAction(state, outputAction, queueProvider)) {
-                    markErrorState(state.id)
-                    return
-                }
-            } else {
-                val isMayTran = state.st1.mayOutputActions.contains(outputAction)
-                processEmptyAction(state, isMayTran, outputAction, true, queueProvider)
-            }
-        }
 
-        // cross/empty for output 2
-        for (outputAction in state.st2.outputActions) {
-            if (sharedActNames.contains(outputAction.name)) {
-                if (!processSharedOutputAction(state, outputAction, queueProvider)) {
-                    markErrorState(state.id)
-                    return
-                }
-            } else {
-                val isMayTran = state.st2.mayOutputActions.contains(outputAction)
-                processEmptyAction(state, isMayTran, outputAction, false, queueProvider)
+        internalProcessOutput(state, state.st1, state.st2, true, queueProvider)
+        internalProcessOutput(state, state.st2, state.st1, false, queueProvider)
+
+        // cross for input 1 and 2
+        for (inputAction in state.st1.inputActions) {
+
+            // input x input => input
+            if (sharedActNames.contains(inputAction.name)) {
+                // missing matching on input x input doesn't cause error
+                processSharedInput(state, state.st1, state.st2, inputAction, queueProvider)
             }
+
+            // missing case is considered in below iterations
         }
 
         // empty for input 1
@@ -136,6 +124,28 @@ open class ModalProductOperation : AbstractSimTraversor<ProductModalState>() {
         for (internalAction in state.st2.internalActions) {
             val isMayTran = state.st2.mayInternalActions.contains(internalAction)
             processEmptyAction(state, isMayTran, internalAction, false, queueProvider)
+        }
+    }
+
+    private fun internalProcessOutput(
+        state: ProductModalState,
+        attack: ModalState,
+        defence: ModalState,
+        isFirst: Boolean,
+        queueProvider: Consumer<ProductModalState>
+    ) {
+        // cross/empty for output 1
+        for (outputAction in attack.outputActions) {
+
+            // output x input => output
+            if (sharedActNames.contains(outputAction.name)) {
+                if (!processSharedOutput(state, attack, defence, outputAction, queueProvider)) {
+                    markErrorState(state.id)
+                }
+            } else {
+                val isMayTran = attack.mayOutputActions.contains(outputAction)
+                processEmptyAction(state, isMayTran, outputAction, isFirst, queueProvider)
+            }
         }
     }
 
@@ -180,58 +190,65 @@ open class ModalProductOperation : AbstractSimTraversor<ProductModalState>() {
         }
     }
 
-    private fun processSharedOutputAction(
+    /**
+     * attack by input action, require defence by an input action
+     * For the case of defence by an output action, it is already covered in the case of output attack
+     * input x input => result input
+     */
+    private fun processSharedInput(
         state: ProductModalState,
-        outputAction: AutomatonAction,
+        attack: ModalState,
+        defence: ModalState,
+        input: AutomatonAction,
         queueProvider: Consumer<ProductModalState>
     ): Boolean {
-        if (outputAction.actionType != AutomatonActionType.Output)
-            return false
+        return processShared(
+            state,
+            attack,
+            defence,
+            input,
+            AutomatonAction.ofInput(input.name),
+            AutomatonAction.ofInput(input.name),
+            queueProvider
+        )
+    }
 
-        val inputAction = AutomatonAction.ofInput(outputAction.name)
-
-        // state 1
-        if (state.st1.outputActions.contains(outputAction)) {
-            return processShared(
-                state,
-                state.st1,
-                state.st2,
-                outputAction,
-                inputAction,
-                queueProvider
-            )
-        }
-
-        // state 2
-        if (state.st2.outputActions.contains(outputAction)) {
-            return processShared(
-                state,
-                state.st2,
-                state.st1,
-                outputAction,
-                inputAction,
-                queueProvider
-            )
-        }
-
-        return false
+    /**
+     * attack by output action, require defence by an input action
+     * output x input => result output
+     */
+    private fun processSharedOutput(
+        state: ProductModalState,
+        attack: ModalState,
+        defence: ModalState,
+        output: AutomatonAction,
+        queueProvider: Consumer<ProductModalState>
+    ): Boolean {
+        return processShared(
+            state,
+            attack,
+            defence,
+            output,
+            AutomatonAction.ofInput(output.name),
+            AutomatonAction.ofOutput(output.name),
+            queueProvider
+        )
     }
 
     private fun processShared(
         state: ProductModalState,
-        st1: ModalState,
-        st2: ModalState,
-        outputAction: AutomatonAction,
-        inputAction: AutomatonAction,
+        attack: ModalState,
+        defence: ModalState,
+        attackAct: AutomatonAction,
+        defenceAct: AutomatonAction,
+        cmpAction: AutomatonAction,
         queueProvider: Consumer<ProductModalState>
     ): Boolean {
 
-        val cmpAction = AutomatonAction.tau()
-
         // process must if: must? - must!
-        val st1Must = st1.getMustSteps(outputAction)
+        val st1Must = attack.getMustSteps(attackAct)
         if (st1Must.isNotEmpty()) {
-            val st2Must = st2.getMustSteps(inputAction)
+            val st2Must = defence.getMustSteps(defenceAct)
             if (st2Must.isNotEmpty()) {
                 for (modalDest1 in st1Must) {
                     for (modalDest2 in st2Must) {
@@ -245,8 +262,8 @@ open class ModalProductOperation : AbstractSimTraversor<ProductModalState>() {
         }
 
         // all other cases considered as may - may
-        val st1MaySequence = st1.getStepsSequence(outputAction)
-        val st2MaySequence = st2.getStepsSequence(inputAction)
+        val st1MaySequence = attack.getStepsSequence(attackAct)
+        val st2MaySequence = defence.getStepsSequence(defenceAct)
         var matched = false
         for (modalDest1 in st1MaySequence) {
             for (dst1 in modalDest1.states) {
@@ -278,7 +295,7 @@ open class ModalProductOperation : AbstractSimTraversor<ProductModalState>() {
         }
 
         val src = state.id
-        Ulogger.debug { String.format("add must step: $src - $cmpAction -> $dstIds") }
+        Ulogger.debug { "add must step: $src - $cmpAction -> $dstIds" }
         builder.addMustTransition(src, MActionExpr.mustOf(cmpAction), dstIds)
     }
 
@@ -290,7 +307,7 @@ open class ModalProductOperation : AbstractSimTraversor<ProductModalState>() {
     ) {
         val src = state.id
         val dst = dstState.id
-        Ulogger.debug { String.format("add may step: $src - $cmpAction -> $dst") }
+        Ulogger.debug { "add may step: $src - $cmpAction -> $dst" }
         builder.addMayTransition(src, MActionExpr.mayOf(cmpAction), dst)
         queueProvider.accept(dstState)
     }
@@ -319,5 +336,46 @@ open class ModalProductOperation : AbstractSimTraversor<ProductModalState>() {
         }
 
         return list
+    }
+
+    companion object {
+
+        /**
+         * MIAs P1, P2 are composable if O1 intersect O2 = empty;
+         * Inputs can be presented in both
+         */
+        private fun isMiaComposable(
+            out1: Set<AutomatonAction>,
+            out2: Set<AutomatonAction>,
+        ): Boolean {
+            if (out1.any { o -> out2.contains(o) })
+                return false
+
+            return true
+        }
+
+        /**
+         * Input can be matched by either input or output
+         * Output can be matched by input only
+         */
+        private fun computeActions(
+            in1: Set<AutomatonAction>,
+            out1: Set<AutomatonAction>,
+            in2: Set<AutomatonAction>,
+            out2: Set<AutomatonAction>
+        ): Set<String> {
+            val set: MutableSet<String> = HashSet()
+            for (act in in1) {
+                if (in2.contains(AutomatonAction.ofInput(act.name)) || out2.contains(AutomatonAction.ofOutput(act.name)))
+                    set.add(act.name)
+            }
+
+            for (act in out1) {
+                if (in2.contains(AutomatonAction.ofInput(act.name)))
+                    set.add(act.name)
+            }
+
+            return set
+        }
     }
 }

@@ -33,6 +33,7 @@ package swtia.sys
 import ialib.core.refinement.SimGraphInterface
 import ialib.iam.simulation.SimGraph
 import swtia.sys.iam.SysIa
+import swtia.sys.mia.MiaSysIa
 import swtia.sys.models.SysIaBase
 
 class IasRuntimeData {
@@ -44,6 +45,7 @@ class IasRuntimeData {
         map[sys.name] = sys
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <S: SysIaBase> getSys(name: String): S {
         val ia = map[name]
         if (ia != null) {
@@ -53,16 +55,11 @@ class IasRuntimeData {
         throw IaRuntimeException("sys $name is not yet computed")
     }
 
-    /**
-     * get list of IAM
-     */
-    fun getIams(): List<SysIa> {
-        return map.values.mapNotNull { v ->
-            if (v is SysIa) {
-                v
-            } else {
-                null
-            }
-        }
+    fun getIamSys(name: String): SysIa {
+        return getSys(name)
+    }
+
+    fun getMiaSys(name: String): MiaSysIa {
+        return getSys(name)
     }
 }

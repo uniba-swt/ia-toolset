@@ -60,6 +60,7 @@ class ModalAutomatonBuilder(val name: String, initId: String) {
     }
 
     fun addMayTransition(srcId: String, action: MActionExpr, dstId: String) {
+        addActionIfNeeded(action.action)
         // add or get states
         val src: ModalState = getOrAddState(srcId)
         val dst: ModalState = getOrAddState(dstId)
@@ -74,7 +75,7 @@ class ModalAutomatonBuilder(val name: String, initId: String) {
         src.addMustTransition(action, disjunctiveIds.map { d -> getOrAddState(d) })
     }
 
-    private fun addActionIfNeeded(action: AutomatonAction) {
+    fun addActionIfNeeded(action: AutomatonAction) {
         mapActions.getOrPut(action.name) { action }
     }
 

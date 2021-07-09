@@ -64,6 +64,7 @@ class CfgToMiaTransformer {
         // create builder
         val initId= getStateId(mapLbToState, cfg.init!!)
         val builder = ModalAutomatonBuilder(cfg.name, initId)
+        cfg.actions.forEach { act -> builder.addActionIfNeeded(act.copy()) }
 
         // iterate over the vertices
         val iterator = cfg.getIterator()

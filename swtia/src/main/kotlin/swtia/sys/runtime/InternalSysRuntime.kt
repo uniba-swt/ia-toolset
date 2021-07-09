@@ -153,7 +153,10 @@ abstract class InternalSysRuntime {
             is GSysDeclRefExpr -> return IasStmtResult.ofSys(runtimeProvider.copy(name, data.getSys(expr.decl.name)))
             is GSysPruneExpr -> {
                 return IasStmtResult.ofSys(runtimeProvider.prune(name, getSysFromParam(expr.param))).also { result ->
-                    ensureNoErrorAfterPrune(result.sys!!) { ErrorMessages.initStateIsPruned }
+                    if (isInitialStateErrorAfterPruned(result.sys!!)) {
+                        addSys(result.sys)
+                        throw IaRuntimeException(ErrorMessages.initStateIsPruned)
+                    }
                 }
             }
             is GSysRestrictExpr -> return IasStmtResult.ofSys(runtimeProvider.restrict(name, getSysFromParam(expr.param), expr.actions))
@@ -165,7 +168,10 @@ abstract class InternalSysRuntime {
                     return when (expr.opType) {
                         GSysBinOpType.PRODUCT -> {
                             IasStmtResult.ofSys(runtimeProvider.product(name, sys1, sys2)).also { result ->
-                                ensureNoErrorAfterPrune(runtimeProvider.prune(name, result.sys!!)) { ErrorMessages.incompatibleIas(sys1.name, sys2.name) }
+                                if (isInitialStateErrorAfterPruned(runtimeProvider.prune(name, result.sys!!))) {
+                                    addSys(result.sys)
+                                    throw IaRuntimeException(ErrorMessages.incompatibleIas(sys1.name, sys2.name))
+                                }
                             }
                         }
                         GSysBinOpType.REFINE -> {
@@ -204,15 +210,11 @@ abstract class InternalSysRuntime {
         Ulogger.debug { "runtime table: ${data.map.keys}" }
     }
 
-    private fun ensureNoErrorAfterPrune(tmpSys: SysIaBase, msg: () -> String) {
-        val isInitError = when (val tmpIa = tmpSys.getIa()) {
+    private fun isInitialStateErrorAfterPruned(tmpSys: SysIaBase): Boolean {
+        return when (val tmpIa = tmpSys.getIa()) {
             is MemAutomaton -> tmpIa.initState.isError
             is ModalAutomaton -> tmpIa.initState.isError
             else -> false
-        }
-
-        if (isInitError) {
-            throw IaRuntimeException(msg())
         }
     }
 
