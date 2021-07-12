@@ -56,7 +56,7 @@ class CodeLensService: ICodeLensService, ICodeLensResolver {
 
         // run vs debug
         val model = resource.getRootModel() ?: return emptyList()
-        val initSection = model.init
+        val initSection = model.init ?: return emptyList()
         val loc = initSection.getLocation()
 
         // init run and debug
