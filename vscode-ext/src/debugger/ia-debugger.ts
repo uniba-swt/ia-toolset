@@ -117,6 +117,7 @@ export function initDebugger(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.debug.registerDebugAdapterTrackerFactory(DebuggerType, new IADebugAdapterTrackerFactory()))
     vscode.debug.onDidStartDebugSession(evt => {
         console.log('onDidStartDebugSession')
+        onNewProductTrace([])
         console.log(evt)
     })
     vscode.debug.onDidReceiveDebugSessionCustomEvent(async (evt) => {
