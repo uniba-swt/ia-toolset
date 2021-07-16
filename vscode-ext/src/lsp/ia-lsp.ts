@@ -106,18 +106,34 @@ export class LspManager {
         // create lc
         this._lc = this.createLanguageClient()
         this._lc.trace = Trace.Verbose
-        this._lc.onReady().then(() => {
-            this.updateStatus(`$(pass) ${ServerName}`)
-        })
 
         // event
         this._lc.onDidChangeState(evt => {
             this._lcState = evt.newState
+            switch (this._lcState) {
+                case State.Stopped:
+                    this.updateStatus(`$(warning) ${ServerName} is disconnected`)
+                    break
+                case State.Starting:
+                    this.updateStatus(`$(sync~spin) Loading ${ServerName}...`)
+                    break
+                case State.Running:
+                    this.updateStatus(`$(pass) ${ServerName}`)
+                    break
+            }
         })
 
         // update status
-        this.updateStatus(`$(sync~spin) Loading ${ServerName}...`)
         this.pushDispose(this._lc.start())
+    }
+
+    /**
+     * Stop LSP
+     */
+    public async stopLanguageClient() {
+        if (this._lcState === State.Running) {
+            await this._lc.stop()
+        }
     }
 
     public ensureLspIsReady(): boolean {
@@ -162,9 +178,9 @@ export class LspManager {
      * deactivate the LC
      * @returns promise
      */
-    deactivate(): Promise<void> {
+    async deactivate(): Promise<void> {
         console.log('IaVsCodeExtension -> deactivate')
-        return this._lc.stop()
+        await this.stopLanguageClient()
     }
 }
 

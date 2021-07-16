@@ -28,8 +28,6 @@
  *
  */
 
-import * as vscode from 'vscode'
-import { ServerName } from '../lsp/language-client-util'
 import { lsp } from '../lsp/ia-lsp'
 import { State } from 'vscode-languageclient'
 
@@ -39,10 +37,9 @@ export class ReloadIdeCommand {
 
     public static async execute() {
         if (lsp.lcState === State.Running) {
-            vscode.window.showInformationMessage(`${ServerName} is already running`)
-        } else {
-            // stop and start
-            await lsp.startLanguageClient()
+            await lsp.stopLanguageClient()
         }
+
+        await lsp.startLanguageClient()
     }
 }
