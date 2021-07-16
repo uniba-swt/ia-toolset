@@ -31,6 +31,8 @@
 package swtia.ide
 
 import ialib.iam.simulation.SimGraph
+import org.eclipse.lsp4j.InitializeParams
+import org.eclipse.lsp4j.ServerCapabilities
 import org.eclipse.xtext.ide.server.LanguageServerImpl
 import swtia.ide.json.ErrorSimGraphJsonFactory
 import swtia.ide.json.IamJsonModel
@@ -46,6 +48,12 @@ import java.util.concurrent.CompletableFuture
 class IaRequestLanguageServer : LanguageServerImpl(), IaRequestEndpoint {
 
     private fun createStandaloneApp(): StandaloneApp = AppFactory.createStandaloneApp()
+
+    override fun createServerCapabilities(params: InitializeParams?): ServerCapabilities {
+        val serv = super.createServerCapabilities(params)
+        serv.completionProvider.triggerCharacters = listOf(" ", ";", "=")
+        return serv
+    }
 
     override fun runInit(msg: Array<RunRequestMsg>): CompletableFuture<RunResponseMsg> {
         return CompletableFuture.supplyAsync {
