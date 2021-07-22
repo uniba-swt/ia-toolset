@@ -55,6 +55,9 @@ class MemPruner(ia: MemAutomaton, private val name: String): PrunerBase<MemAutom
 
     override fun rebuildIa(errorStates: Set<String>): MemAutomaton {
         val builder = MemAutomatonBuilder(name, ia.initState.name, ia.decls)
+
+        ia.ioActions.forEach { a -> builder.addActionIfNeeded(a) }
+
         for (st in ia.getIterator()) {
             if (errorStates.contains(st.name))
                 continue
