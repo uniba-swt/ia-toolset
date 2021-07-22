@@ -41,7 +41,7 @@ export const ServerName = 'IA IDE Server'
 export class LanguageClientUtil {
 
     /**
-     * create LanguageClient that works with embedded BahnDSL language server binary
+     * create LanguageClient that works with embedded IA Toolset language server binary
      * @param context context
      * @returns lc
      */
