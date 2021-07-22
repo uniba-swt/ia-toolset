@@ -41,7 +41,6 @@ import swtia.ia.GSysBinOpExpr
 import swtia.ia.GSysBinOpType
 import swtia.util.ResourceUtil.getLocation
 import swtia.util.ResourceUtil.getRootModel
-import java.nio.file.Paths
 
 
 class CodeLensService: ICodeLensService, ICodeLensResolver {
@@ -52,7 +51,7 @@ class CodeLensService: ICodeLensService, ICodeLensResolver {
         indicator: CancelIndicator
     ): List<CodeLens> {
 
-        val uri = resource.uri.path()
+        val filePath = resource.uri.toFileString()
 
         // run vs debug
         val model = resource.getRootModel() ?: return emptyList()
@@ -64,7 +63,7 @@ class CodeLensService: ICodeLensService, ICodeLensResolver {
             len.command = Command().also { cmd ->
                 cmd.command = "ia-toolset.cmdRun"
                 cmd.title = "Run"
-                cmd.arguments = listOf(uri)
+                cmd.arguments = listOf(filePath)
             }
             len.range = getRange(loc)
         }
@@ -73,7 +72,7 @@ class CodeLensService: ICodeLensService, ICodeLensResolver {
             len.command = Command().also { cmd ->
                 cmd.command = "ia-toolset.cmdDebug"
                 cmd.title = "Debug"
-                cmd.arguments = listOf(uri)
+                cmd.arguments = listOf(filePath)
             }
             len.range = getRange(loc)
         }
@@ -86,7 +85,7 @@ class CodeLensService: ICodeLensService, ICodeLensResolver {
                 len.command = Command().also { cmd ->
                     cmd.command = "ia-toolset.cmdExploreProc"
                     cmd.title = "Explore"
-                    cmd.arguments = listOf(uri, proc.name)
+                    cmd.arguments = listOf(filePath, proc.name)
                 }
                 len.range = getRange(proc.getLocation())
             })
@@ -103,7 +102,7 @@ class CodeLensService: ICodeLensService, ICodeLensResolver {
                         len.command = Command().also { cmd ->
                             cmd.command = "ia-toolset.cmdSimulateRefinement"
                             cmd.title = "Simulate"
-                            cmd.arguments = listOf(uri)
+                            cmd.arguments = listOf(filePath)
                         }
                         len.range = getRange(expr.getLocation())
                     })
@@ -114,7 +113,7 @@ class CodeLensService: ICodeLensService, ICodeLensResolver {
                         len.command = Command().also { cmd ->
                             cmd.command = "ia-toolset.simulateErrorRefinement"
                             cmd.title = "Find counter-example"
-                            cmd.arguments = listOf(uri)
+                            cmd.arguments = listOf(filePath)
                         }
                         len.range = getRange(expr.getLocation())
                     })

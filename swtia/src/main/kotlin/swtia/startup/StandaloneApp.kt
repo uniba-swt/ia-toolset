@@ -47,6 +47,10 @@ import swtia.util.ResourceUtil.getRootModel
 import swtia.util.Ulogger
 import swtia.util.Ulogger.debug
 import swtia.util.XtextModelHelper
+import java.io.File
+import java.nio.file.Paths
+import kotlin.io.path.Path
+import kotlin.io.path.exists
 
 class StandaloneApp {
 
@@ -73,6 +77,10 @@ class StandaloneApp {
     }
 
     fun execRuntime(file: String, rst: InternalSysRuntime? = null): StandaloneAppResult {
+        if (!File(file).exists()) {
+            return StandaloneAppResult(false, null, "File does not exist: $file")
+        }
+
         // format -> stop
         if (OperatorOptions.isFormat) {
             debug("format: $file")

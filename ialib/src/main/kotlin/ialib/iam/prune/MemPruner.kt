@@ -59,13 +59,17 @@ class MemPruner(ia: MemAutomaton, private val name: String): PrunerBase<MemAutom
         ia.ioActions.forEach { a -> builder.addActionIfNeeded(a) }
 
         for (st in ia.getIterator()) {
+
+            // delete outgoing transition from error statate
             if (errorStates.contains(st.name))
                 continue
             
             // add transition
-            for ((action, steps) in st.mapSteps) {
+            for ((_, steps) in st.mapSteps) {
                 for (step in steps) {
-                    if (action.isOutputOrInternal() && errorStates.contains(step.dstState.name))
+
+                    // delete incoming transitions to error state
+                    if (errorStates.contains(step.dstState.name))
                         continue
 
                     // add
