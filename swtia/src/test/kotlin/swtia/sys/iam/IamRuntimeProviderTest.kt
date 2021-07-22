@@ -179,7 +179,19 @@ class IamRuntimeProviderTest {
     @ParameterizedTest
     @ValueSource(
         strings = [
-            "actions { i, o } proc Q { act { i?, o! }  i? o! tau error } init { sys s1 = prune(Q()) }",
+            "actions { i, o } proc Q { act { i?, o! }  case { o! -> {}  i? ->  { o! tau error } } } init { sys s1 = prune(Q()) }"
+        ]
+    )
+    fun validPrune(src: String) {
+        val pair = standaloneApp.execModel(testHelper.validate(src))
+        val ia = pair.runtimeData!!.getSys<SysIa>("s1").automaton
+        assertNotNull(ia.initState)
+        assertEquals(1, ia.initState.mapSteps.keys.size)
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
             "actions { i, o } proc Q { act { i?, o! }  i? tau tau error } init { sys s1 = prune(Q()) }",
             "actions { i, o } proc Q { act { i?, o! }  i? tau o! error } init { sys s1 = prune(Q()) }",
             "actions { i, o } proc Q { act { i?, o! }  i? o! o! error } init { sys s1 = prune(Q()) }",
@@ -188,14 +200,11 @@ class IamRuntimeProviderTest {
             "actions { i } proc Q { act { i? }  i? error } init { sys s1 = prune(Q()) }"
         ]
     )
-    fun validPrune(src: String) {
+    fun validPruneRemoveAll(src: String) {
         val pair = standaloneApp.execModel(testHelper.validate(src))
         val ia = pair.runtimeData!!.getSys<SysIa>("s1").automaton
         assertNotNull(ia.initState)
-        assertEquals("i?", ia.initState.mapSteps.keys.single().formatted())
-
-        // dest -> empty
-        assertEquals(0, ia.initState.mapSteps.values.first().first().dstState.mapSteps.size)
+        assertEquals(0, ia.initState.mapSteps.keys.size)
     }
 
     @ParameterizedTest
