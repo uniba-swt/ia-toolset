@@ -34,11 +34,23 @@ class MemCloner {
     fun clone(name: String, automaton: MemAutomaton): MemAutomaton {
         // build new
         val builder = MemAutomatonBuilder(name, automaton.initState.name, automaton.decls)
+
+        // Clone the actions
+        automaton.ioActions.forEach { a -> builder.addActionIfNeeded(a) }
+
+        // Clone the transitions
         for (state in automaton.getIterator()) {
             for ((_, steps) in state.mapSteps) {
                 for (step in steps) {
                     builder.addTransition(state.name, step.dstState.name, step.action, step.preCond, step.postCond)
                 }
+            }
+        }
+
+        // Mark the error states
+        for (state in automaton.getIterator()) {
+            if (state.isError) {
+                builder.markStateAsError(state.name)
             }
         }
 

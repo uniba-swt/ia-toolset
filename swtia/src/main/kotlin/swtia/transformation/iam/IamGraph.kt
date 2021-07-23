@@ -50,7 +50,7 @@ class IamGraph(val name: String, var initId: String) {
         // add all actions first
         actions.forEach { a -> builder.addActionIfNeeded(a) }
 
-        // add set
+        // add transitions
         val set = underlying.edgeSet()
         for (edge in set) {
             val src = underlying.getEdgeSource(edge)

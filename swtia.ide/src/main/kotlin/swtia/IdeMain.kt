@@ -50,12 +50,13 @@ object IdeMain {
      *
      *
      * FOR DEBUGGER:
-     *
+     * Arguments for localhost socket: -port
+     * Default port is 8989
      *
      * FOR LSP:
-     * arguments for default launcher: -log -trace -debug
-     * arguments for localhost socket: -port NUMBER
-     * example: -port 8686
+     * Arguments for default launcher: -log -trace -debug
+     * Arguments for localhost socket: -port NUMBER
+     * Example: -port 8686
      *
      * @param args arguments
      */

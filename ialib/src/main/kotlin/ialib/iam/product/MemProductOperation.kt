@@ -80,6 +80,13 @@ open class MemProductOperation(
         val init = ProductMemState(ia1.initState, ia2.initState)
         builder = MemAutomatonBuilder(name, init.cmpMemState.name)
 
+        // actions not shared
+        for (action in ia1.ioActions + ia2.ioActions) {
+            if (!sharedActNames.contains(action.name)) {
+                builder.addActionIfNeeded(action)
+            }
+        }
+
         // start
         start(init)
 
