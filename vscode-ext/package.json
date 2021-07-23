@@ -65,7 +65,7 @@
           "ia-toolset.remoteDebugAdapterEnabled": {
             "type": "boolean",
             "default": false,
-            "description": "Use remote Debug Adapater server"
+            "description": "Use remote Debug Adapter server (only for debugging models and parallel product)"
           },
           "ia-toolset.remoteDebugAdapterPort": {
             "type": "number",
