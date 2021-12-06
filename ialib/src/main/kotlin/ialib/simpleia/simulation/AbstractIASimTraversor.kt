@@ -31,14 +31,14 @@
 package ialib.simpleia.simulation
 
 import ialib.simpleia.Automaton
-import ialib.core.refinement.RefinementUtil.isInputOutputValid
+import ialib.core.refinement.RefinementUtil
 import ialib.core.simulation.AbstractSimTraversor
 import java.util.function.Consumer
 
 abstract class AbstractIASimTraversor protected constructor(private val specIa: Automaton, private val implIa: Automaton) : AbstractSimTraversor<SimState>() {
     private val simulator = NfaStepSimulator()
     protected fun start(): Boolean {
-        if (!isInputOutputValid(specIa, implIa)) {
+        if (!RefinementUtil.isInputOutputEqual(specIa, implIa)) {
             return false
         }
         start(SimState(specIa.initState, implIa.initState))
