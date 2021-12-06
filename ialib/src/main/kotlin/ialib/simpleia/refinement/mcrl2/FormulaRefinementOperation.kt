@@ -33,7 +33,7 @@ package ialib.simpleia.refinement.mcrl2
 import ialib.Ulogger
 import ialib.simpleia.Automaton
 import ialib.core.AutomatonAction
-import ialib.core.refinement.RefinementUtil.isInputOutputValid
+import ialib.core.refinement.RefinementUtil
 import ialib.core.services.TextFileWriter
 import ialib.simpleia.refinement.formula.FormulaBuilder
 import ialib.solvers.DefaultCliExecutor
@@ -51,7 +51,7 @@ import java.util.*
 class FormulaRefinementOperation(val ia1: Automaton, val ia2: Automaton) {
     fun verify(fsa: TextFileWriter, executor: DefaultCliExecutor): Boolean {
         // check input/output set
-        if (!isInputOutputValid(ia1, ia2)) return false
+        if (!RefinementUtil.isInputOutputEqual(ia1, ia2)) return false
 
         // Step 1: build formula for IA 1
         val frm = FormulaBuilder(ia1).buildMcfString()

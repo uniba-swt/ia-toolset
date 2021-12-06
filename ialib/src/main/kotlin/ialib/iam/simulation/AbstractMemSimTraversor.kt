@@ -33,9 +33,7 @@ package ialib.iam.simulation
 import ialib.core.refinement.RefinementUtil
 import ialib.core.simulation.AbstractSimTraversor
 import ialib.iam.MemAutomaton
-import ialib.iam.MemStep
 import ialib.iam.expr.solver.DefaultSmtSolver
-import ialib.iam.simulation.*
 import java.util.function.Consumer
 
 abstract class AbstractMemSimTraversor protected constructor(solver: DefaultSmtSolver, private val specificIa: MemAutomaton, private val abstractIa: MemAutomaton)
@@ -51,8 +49,8 @@ abstract class AbstractMemSimTraversor protected constructor(solver: DefaultSmtS
      * start process and build completed sim state
      */
     fun start(): SimGraph {
-        if (!RefinementUtil.isInputOutputValid(specificIa, abstractIa)) {
-            error("Input and output set are not valid")
+        if (!RefinementUtil.isInputOutputEqual(specificIa, abstractIa)) {
+            error("Input and output sets are not equal")
         }
         initState = SimMemState(abstractIa.initState, specificIa.initState)
         start(initState)

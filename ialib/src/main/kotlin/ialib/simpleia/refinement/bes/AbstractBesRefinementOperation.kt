@@ -34,7 +34,7 @@ import ialib.bes.DocBesFormula
 import ialib.core.AbstractAutomaton
 import ialib.core.AbstractState
 import ialib.core.CoreException
-import ialib.core.refinement.RefinementUtil.isInputOutputValid
+import ialib.core.refinement.RefinementUtil
 import ialib.solvers.PbesSolver
 import org.apache.log4j.Logger
 
@@ -47,10 +47,10 @@ abstract class AbstractBesRefinementOperation<T : AbstractState> protected const
 
         // check input/output set
         if (shouldCheckIO()) {
-            if (!isInputOutputValid(specificIa, abstractIa)) {
+            if (!RefinementUtil.isInputOutputEqual(specificIa, abstractIa)) {
                 val s1 = (specificIa.inputActions + specificIa.outputActions).joinToString { act -> act.formatted() }
                 val s2 = (abstractIa.inputActions + abstractIa.outputActions).joinToString { act -> act.formatted() }
-                throw CoreException("Input and output set are invalid ($s1 -- $s2)")
+                throw CoreException("Input and output sets are not equal ($s1 -- $s2)")
             }
         }
 

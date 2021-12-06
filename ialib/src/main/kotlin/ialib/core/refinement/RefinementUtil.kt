@@ -41,6 +41,38 @@ object RefinementUtil {
      * AutomatonBase
      *
      * ensure
+     * specIa.inputs == implIa.inputs
+     * &&
+     * specIa.outputs == implIa.outputs
+     * @param abstractIa IA Spec
+     * @param specificIa IA Impl
+     * @return true if satisfied, otherwise false
+     */
+    fun isInputOutputEqual(specificIa: AutomatonBase, abstractIa: AutomatonBase): Boolean {
+        return isInputOutputEqual(abstractIa.inputActions, abstractIa.outputActions, specificIa.inputActions, specificIa.outputActions)
+    }
+
+    private fun isInputOutputEqual(
+        specInputs: Set<AutomatonAction>,
+        specOutputs: Set<AutomatonAction>,
+        implInputs: Set<AutomatonAction>,
+        implOutputs: Set<AutomatonAction>
+    ): Boolean {
+        if (implInputs != specInputs) {
+            logger.debug("Implementation and specification inputs are not equal")
+            return false
+        }
+        if (implOutputs != specOutputs) {
+            logger.debug("Implementation and specification outputs are not equal")
+            return false
+        }
+        return true
+    }
+
+    /**
+     * AutomatonBase
+     *
+     * ensure
      * specIa.inputs < implIa.inputs
      * &&
      * specIa.outputs > implIa.outputs
@@ -48,17 +80,22 @@ object RefinementUtil {
      * @param specificIa IA Impl
      * @return true if satisfied, otherwise false
      */
-    fun isInputOutputValid(specificIa: AutomatonBase, abstractIa: AutomatonBase): Boolean {
-        return isInputOutputValid(abstractIa.inputActions, abstractIa.outputActions, specificIa.inputActions, specificIa.outputActions)
+    fun isInputOutputContained(specificIa: AutomatonBase, abstractIa: AutomatonBase): Boolean {
+        return isInputOutputContained(abstractIa.inputActions, abstractIa.outputActions, specificIa.inputActions, specificIa.outputActions)
     }
 
-    private fun isInputOutputValid(specInputs: Set<AutomatonAction>, specOutputs: Set<AutomatonAction>, implInputs: Set<AutomatonAction>, implOutputs: Set<AutomatonAction>): Boolean {
+    private fun isInputOutputContained(
+        specInputs: Set<AutomatonAction>,
+        specOutputs: Set<AutomatonAction>,
+        implInputs: Set<AutomatonAction>,
+        implOutputs: Set<AutomatonAction>
+    ): Boolean {
         if (!implInputs.containsAll(specInputs)) {
-            logger.debug("Some inputs are missing in Implementation")
+            logger.debug("Implementation is missing some inputs")
             return false
         }
         if (!specOutputs.containsAll(implOutputs)) {
-            logger.debug("Some outputs are missing in Specification")
+            logger.debug("Specification is missing some outputs")
             return false
         }
         return true

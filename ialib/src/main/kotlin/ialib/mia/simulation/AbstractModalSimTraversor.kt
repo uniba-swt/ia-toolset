@@ -31,7 +31,7 @@
 package ialib.mia.simulation
 
 import ialib.Ulogger
-import ialib.core.refinement.RefinementUtil.isInputOutputValid
+import ialib.core.refinement.RefinementUtil
 import ialib.core.simulation.AbstractSimTraversor
 import ialib.mia.ModalAutomaton
 import ialib.mia.refinement.ModalSimGraph
@@ -48,9 +48,9 @@ abstract class AbstractModalSimTraversor(private val specIa: ModalAutomaton, pri
 
     fun start(): ModalSimGraph {
         if (shouldCheckIO()) {
-            if (!isInputOutputValid(specIa, implIa)) {
-                Ulogger.error("Input and output set are not valid")
-                error("Input and output set are not valid")
+            if (!RefinementUtil.isInputOutputEqual(specIa, implIa)) {
+                Ulogger.error("Input and output sets are not equal")
+                error("Input and output sets are not equal")
             }
         }
 
