@@ -37,7 +37,7 @@ import swtia.validation.typing.DataType
 object ErrorMessages {
 
     fun expectSameType(leftType: DataType, rightType: DataType): String {
-        return "expected same types but actual: '$leftType' and '$rightType'"
+        return "Expected same types but got '$leftType' and '$rightType'"
     }
 
     fun expectType(expectedType: DataType, actual: DataType): String {
@@ -45,71 +45,71 @@ object ErrorMessages {
     }
 
     fun expectType(expectedType: String, actual: String): String {
-        return "expected type '$expectedType' but actual '$actual'"
+        return "Expected type '$expectedType' but got '$actual'"
     }
 
     fun expectBoolOrAction(actual: String): String {
-        return "expected type 'bool' but actual '$actual'"
+        return "Expected type 'bool' but got '$actual'"
     }
 
     fun cannotJumpOutsideLoop(name: String): String {
-        return "cannot '$name' outside of a loop"
+        return "Cannot '$name' outside of a loop"
     }
 
     fun idIsAlreadyDefined(name: String): String {
-        return "identifier '$name' is already defined"
+        return "Redefinition of identifier '$name'"
     }
 
     fun localVariableIsNotSupported(name: String): String {
-        return "local variable is not supported, move '$name' to global"
+        return "Local variables are not supported: move '$name' to global scope"
     }
 
     fun procIsAlreadyDefined(name: String): String {
-        return "process '$name' is already defined"
+        return "Redefinition of process '$name'"
     }
 
     fun actionIsAlreadyDefined(name: String): String {
-        return "action '$name' is already defined"
+        return "Redefinition of action '$name'"
     }
 
     fun customTypeIsAlreadyDefined(name: String): String {
-        return "custom type '$name' is already defined"
+        return "Redefinition of custom type '$name'"
     }
 
     fun actionIsAlreadyDeclaredInProc(name: String): String {
-        return "action '$name' is already declared in proc"
+        return "Redeclaration of action '$name' in proc"
     }
 
     fun sysIsAlreadyDefined(name: String): String {
-        return "system '$name' is already defined"
+        return "Redefinition of system '$name'"
     }
 
     fun invalidActionSuffix(name: String, expect: GActionSuffix, actual: GActionSuffix): String {
-        return "invalid action suffix, expect '$name$expect' but actual '$name$actual'"
+        return "Invalid action suffix: expect '$name$expect' but got '$name$actual'"
     }
 
     fun noActionFoundForPostCondition(): String {
-        return "no action found for post condition"
+        return "No action found for post-condition"
     }
 
     fun invalidPostCondition(expectedAssert: String, strtAction: String): String {
-        return "invalid post condition, expected $expectedAssert for $strtAction"
+        return "Invalid post-condition: expected $expectedAssert for $strtAction"
     }
 
     fun errorProcCallMismatchedArgs(expected: Int, actual: Int): String {
-        return "number of arguments are not matched, expected $expected but actual $actual"
+        return "Number of arguments does not match: expected $expected but got $actual"
     }
 
     fun errorDataDeterministic(fmtAction: String, strSteps: String): String {
-        return "Data-deterministic is required for input $fmtAction: $strSteps"
+        return "Data-determinism is required for input $fmtAction: $strSteps"
     }
 
     fun errorIamPreCondNotSat(step: String): String {
-        return "pre-cond is not satisfiable at $step"
+        return "Pre-condition is not satisfiable at $step"
     }
 
     fun errorIamPostCondNotSat(step: String): String {
-        return "post-cond is not satisfiable at $step"
+        return "Post-condition is not satisfiable at $step"
     }
 
     fun errorUnsatisfiablePostCond(formatStep: String): String {
@@ -117,40 +117,40 @@ object ErrorMessages {
     }
 
     fun incompatibleIas(s1: String, s2: String): String {
-        return "The $s1 and $s2 are incompatible"
+        return "Systems $s1 and $s2 are incompatible"
     }
 
     fun missingTools(tools: List<String>): String {
-        return "Missing tools in PATH env: ${tools.joinToString(", ")}"
+        return "Tools missing in PATH env: ${tools.joinToString(", ")}"
     }
 
-    const val errorPrimeIsOnlyAllowedInAssert = "primed variable is only allowed in 'assume' or 'guarantee'"
+    const val errorPrimeIsOnlyAllowedInAssert = "Primed variable is only allowed in 'assume' or 'guarantee'"
 
-    const val errorPrimeIsForGlobalVarOnly = "primed reference is for global variable only"
+    const val errorPrimeIsForGlobalVarOnly = "Primed reference is for global variable only"
 
-    const val actionNotAllowedInExpr = "action synchronization cannot be used with other expressions"
+    const val actionNotAllowedInExpr = "Action synchronization cannot be used with other expressions"
 
-    const val elseBranchNotAllowedWithAction = "else branch is not allowed with action on condition"
+    const val elseBranchNotAllowedWithAction = "Else branch is not allowed with action on condition"
 
-    const val cannotComputeType = "type cannot be computed"
+    const val cannotComputeType = "Type cannot be computed"
 
-    const val sharedVariableIsNotAllowed = "shared variable is not allowed in process creation"
+    const val sharedVariableIsNotAllowed = "Shared variable is not allowed in process creation"
 
-    const val disjunctiveMustStatementNotAllowed = "disjunctive statement is not allowed in IAM (use #mia instead)"
+    const val disjunctiveMustStatementNotAllowed = "Disjunctive statement is not allowed in IAM (use '#mia' instead)"
 
-    const val mayActionNotAllowed = "may action is not allowed in IAM (use #mia instead)"
+    const val mayActionNotAllowed = "May action is not allowed in IAM (use '#mia' instead)"
 
-    const val dataTypesNotAllowed = "custom data type is not allowed in MIA (use #iam instead)"
+    const val dataTypesNotAllowed = "Custom data type is not allowed in MIA (use '#iam' instead)"
 
-    const val expressionNotAllowed = "expression is not allowed in MIA (use #iam instead)"
+    const val expressionNotAllowed = "Expression is not allowed in MIA (use '#iam' instead)"
 
-    const val variableNotAllowedInMia = "variable is not allowed in MIA (use #iam instead)"
+    const val variableNotAllowedInMia = "Variable is not allowed in MIA (use '#iam' instead)"
 
-    const val disjunctiveStatementMustFollowMust = "disjunctive statement must follow a must action"
+    const val disjunctiveStatementMustFollowMust = "Disjunctive statement has to follow a must action"
 
-    const val initStateIsPruned = "invalid result automaton of product (init state is pruned)"
+    const val initStateIsPruned = "Invalid automaton (initial state is pruned)"
 
-    const val restrictIsOnlySupportedInIam = "restrict is only supported in IAM"
+    const val restrictIsOnlySupportedInIam = "Restrict is only supported in IAM"
 
-    const val scopeIsOnlySupportedInMia = "scope is only supported in MIA"
+    const val scopeIsOnlySupportedInMia = "Scope is only supported in MIA"
 }

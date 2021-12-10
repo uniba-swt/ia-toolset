@@ -77,7 +77,7 @@ class MiaTransformationControllerTest {
         ]
     )
     fun errorDisjunctiveFollowMust(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "disjunctive statement must follow a must action")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "Disjunctive statement has to follow a must action")
     }
 
     @ParameterizedTest
@@ -88,7 +88,7 @@ class MiaTransformationControllerTest {
         ]
     )
     fun errorDisjunctiveFollowMustButMay(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "disjunctive statement must follow a must action")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "Disjunctive statement has to follow a must action")
     }
 
     @ParameterizedTest

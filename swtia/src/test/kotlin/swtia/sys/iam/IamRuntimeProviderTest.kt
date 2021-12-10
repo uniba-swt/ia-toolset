@@ -179,6 +179,17 @@ class IamRuntimeProviderTest {
     @ParameterizedTest
     @ValueSource(
         strings = [
+            "actions { b } proc P { act { b! } b! b! } proc A { act { b? } b? } init { sys p = P() sys a = A() sys prod = product(p, a) }"
+        ]
+    )
+    fun incompatible(src: String) {
+        val pair = standaloneApp.execModel(testHelper.validate(src))
+        assertEquals("Systems p and a are incompatible", pair.errorMsg)
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
             "actions { i, o } proc Q { act { i?, o! }  case { o! -> {}  i? ->  { o! tau error } } } init { sys s1 = prune(Q()) }"
         ]
     )
@@ -220,6 +231,6 @@ class IamRuntimeProviderTest {
     )
     fun pruneIncludeInitState(src: String) {
         val pair = standaloneApp.execModel(testHelper.validate(src))
-        assertEquals("invalid result automaton of product (init state is pruned)", pair.errorMsg)
+        assertEquals("Invalid automaton (initial state is pruned)", pair.errorMsg)
     }
 }

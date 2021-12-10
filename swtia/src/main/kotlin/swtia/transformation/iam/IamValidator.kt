@@ -53,7 +53,7 @@ class IamValidator {
      * - pre-cond must be satisfiable
      * - post-cond must be satisfiable
      * - primed variable in post-condition
-     * - data-deterministic for input action
+     * - data-determinism for input action
      */
     @Throws(TransformException::class)
     fun validate(ia: SysIa) {

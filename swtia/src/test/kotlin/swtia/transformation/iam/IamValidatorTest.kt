@@ -70,7 +70,7 @@ class IamValidatorTest {
         ]
     )
     fun errorPreConditionNotSat(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "pre-cond is not satisfiable at")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "Pre-condition is not satisfiable at")
     }
 
     @ParameterizedTest
@@ -86,7 +86,7 @@ class IamValidatorTest {
         ]
     )
     fun errorPostConditionNotSat(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "post-cond is not satisfiable at")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "Post-condition is not satisfiable at")
     }
 
     @ParameterizedTest
@@ -116,7 +116,7 @@ class IamValidatorTest {
         ]
     )
     fun errorDataDeterministicInput(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "Data-deterministic is required for input")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "Data-determinism is required for input")
     }
 
     @ParameterizedTest
