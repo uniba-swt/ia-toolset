@@ -119,17 +119,7 @@ open class MemProductOperation(
         // Automaton 1: Shared output action (either synchronised or non-shared)
         for (outputAction in state.st1.outputActions) {
             if (sharedActNames.contains(outputAction.name)) {
-                if (!processSharedOutputAction(state, outputAction, queueProvider)) {
-                    val outStep = state.st1.getDstSteps(outputAction).first()
-                    cacheErrorState(state,
-                        MActionExpr.of(outputAction, outStep.action.location),
-                        outStep,
-                        null,
-                        "Output action $outputAction is not of type output",
-                        true
-                    )
-                    return
-                }
+                processSharedOutputAction(state, outputAction, queueProvider, true)
             } else {
                 processEmptyAction(state, outputAction, true, queueProvider)
             }
@@ -138,17 +128,7 @@ open class MemProductOperation(
         // Automaton 2: Shared output action (either synchronised or non-shared)
         for (outputAction in state.st2.outputActions) {
             if (sharedActNames.contains(outputAction.name)) {
-                if (!processSharedOutputAction(state, outputAction, queueProvider)) {
-                    val outStep = state.st2.getDstSteps(outputAction).first()
-                    cacheErrorState(state,
-                        MActionExpr.of(outputAction, outStep.action.location),
-                        outStep,
-                        null,
-                        "Output action $outputAction is not of type output",
-                        false,
-                    )
-                    return
-                }
+                processSharedOutputAction(state, outputAction, queueProvider, false)
             } else {
                 processEmptyAction(state, outputAction, false, queueProvider)
             }
@@ -215,27 +195,31 @@ open class MemProductOperation(
     private fun processSharedOutputAction(
         state: ProductMemState,
         outputAction: AutomatonAction,
-        queueProvider: Consumer<ProductMemState>
-    ): Boolean {
-        if (outputAction.actionType !== AutomatonActionType.Output) return false
+        queueProvider: Consumer<ProductMemState>,
+        isOutInFstState: Boolean
+    ) {
+        if (outputAction.actionType !== AutomatonActionType.Output) {
+            val outStep = if (isOutInFstState) state.st1.getDstSteps(outputAction).first()
+                          else state.st2.getDstSteps(outputAction).first()
+            cacheErrorState(state, MActionExpr.of(outputAction, outStep.action.location), outStep, null,
+                "Output action $outputAction is not of type output", true)
+            return
+        }
 
         // process input
         val inputAction = AutomatonAction.ofInput(outputAction.name)
 
-        // Error if there are no input transitions that match the output action
-        if (state.st1.hasAction(outputAction) && !state.st2.hasAction(inputAction)) {
-            val outStep = state.st1.getDstSteps(outputAction).first()
+        // Communication error if there are no input transitions that match the output action
+        val st1CommErr = (state.st1.hasAction(outputAction) && !state.st2.hasAction(inputAction))
+        val st2CommErr = (state.st2.hasAction(outputAction) && !state.st1.hasAction(inputAction))
+
+        if (st1CommErr || st2CommErr) {
+            val outStep = if (st1CommErr) state.st1.getDstSteps(outputAction).first()
+                          else state.st2.getDstSteps(outputAction).first()
             val errMsg = "Error state because there are no transitions with $inputAction: ${state.id}"
             cacheErrorState(state, MActionExpr.of(outputAction, outStep.action.location), outStep, null, errMsg, true)
             logger.debug(errMsg)
-            return true
-        }
-        if (state.st2.hasAction(outputAction) && !state.st1.hasAction(inputAction)) {
-            val outStep = state.st2.getDstSteps(outputAction).first()
-            val errMsg = "Error state because there are no transitions with $inputAction: ${state.id}"
-            cacheErrorState(state, MActionExpr.of(outputAction, outStep.action.location), outStep, null, errMsg, false)
-            logger.debug(errMsg)
-            return true
+            return
         }
 
         // Automaton 1 state output --> Automaton 2 state input
@@ -251,8 +235,6 @@ open class MemProductOperation(
             val cmpAction = MActionExpr.of(AutomatonAction.tau(), outStep.action.location)
             processSharedStep(state, queueProvider, cmpAction, outStep, inSteps, false)
         }
-
-        return true
     }
 
     private fun processSharedStep(
