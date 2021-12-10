@@ -108,10 +108,15 @@ open class MemProductOperation(
     )
 
     override fun processSimState(state: ProductMemState, queueProvider: Consumer<ProductMemState>) {
-
         logger.debug("Process pair: " + state.id)
 
-        // cross/empty for output 1
+        // Automaton 1: Error state
+        // TODO
+
+        // Automaton 2: Error state
+        // TODO
+
+        // Automaton 1: Shared output action (either synchronised or non-shared)
         for (outputAction in state.st1.outputActions) {
             if (sharedActNames.contains(outputAction.name)) {
                 if (!processSharedOutputAction(state, outputAction, queueProvider)) {
@@ -120,7 +125,7 @@ open class MemProductOperation(
                         MActionExpr.of(outputAction, outStep.action.location),
                         outStep,
                         null,
-                        "No corresponding input action found for: $outputAction",
+                        "Output action $outputAction is not of type output",
                         true
                     )
                     return
@@ -130,7 +135,7 @@ open class MemProductOperation(
             }
         }
 
-        // cross/empty for output 2
+        // Automaton 2: Shared output action (either synchronised or non-shared)
         for (outputAction in state.st2.outputActions) {
             if (sharedActNames.contains(outputAction.name)) {
                 if (!processSharedOutputAction(state, outputAction, queueProvider)) {
@@ -139,7 +144,7 @@ open class MemProductOperation(
                         MActionExpr.of(outputAction, outStep.action.location),
                         outStep,
                         null,
-                        "No corresponding input action found for: $outputAction",
+                        "Output action $outputAction is not of type output",
                         false,
                     )
                     return
@@ -149,26 +154,26 @@ open class MemProductOperation(
             }
         }
 
-        // empty for input 1
+        // Automaton 1: Non-shared input action
         for (inputAction in state.st1.inputActions) {
             if (!sharedActNames.contains(inputAction.name)) {
                 processEmptyAction(state, inputAction, true, queueProvider)
             }
         }
 
-        // empty for internal 1
+        // Automaton 1: Internal action
         for (internalAction in state.st1.internalActions) {
             processEmptyAction(state, internalAction, true, queueProvider)
         }
 
-        // empty for input 2
+        // Automaton 2: Non-shared input action
         for (inputAction in state.st2.inputActions) {
             if (!sharedActNames.contains(inputAction.name)) {
                 processEmptyAction(state, inputAction, false, queueProvider)
             }
         }
 
-        // empty for internal 2
+        // Automaton 2: Internal action
         for (internalAction in state.st2.internalActions) {
             processEmptyAction(state, internalAction, false, queueProvider)
         }
@@ -191,18 +196,14 @@ open class MemProductOperation(
         isFirst: Boolean,
         queueProvider: Consumer<ProductMemState>
     ) {
-
         // find owner
         val toMoveSt = if (isFirst) state.st1 else state.st2
 
         // add steps
         for (dstStep in toMoveSt.getDstSteps(action)) {
-
             // add step
-            val prodDst = if (isFirst) ProductMemState(dstStep.dstState, state.st2) else ProductMemState(
-                state.st1,
-                dstStep.dstState
-            )
+            val prodDst = if (isFirst) ProductMemState(dstStep.dstState, state.st2)
+                          else ProductMemState(state.st1, dstStep.dstState)
             val step = addNewStep(state, dstStep.action, dstStep.preCond, dstStep.postCond, prodDst, queueProvider)
 
             // callback
@@ -221,19 +222,36 @@ open class MemProductOperation(
         // process input
         val inputAction = AutomatonAction.ofInput(outputAction.name)
 
-        // st1 -> outputs with st2 -> inputs
+        // Error if there are no input transitions that match the output action
+        if (state.st1.hasAction(outputAction) && !state.st2.hasAction(inputAction)) {
+            val outStep = state.st1.getDstSteps(outputAction).first()
+            val errMsg = "Error state because there are no transitions with $inputAction: ${state.id}"
+            cacheErrorState(state, MActionExpr.of(outputAction, outStep.action.location), outStep, null, errMsg, true)
+            logger.debug(errMsg)
+            return true
+        }
+        if (state.st2.hasAction(outputAction) && !state.st1.hasAction(inputAction)) {
+            val outStep = state.st2.getDstSteps(outputAction).first()
+            val errMsg = "Error state because there are no transitions with $inputAction: ${state.id}"
+            cacheErrorState(state, MActionExpr.of(outputAction, outStep.action.location), outStep, null, errMsg, false)
+            logger.debug(errMsg)
+            return true
+        }
+
+        // Automaton 1 state output --> Automaton 2 state input
         for (outStep in state.st1.getDstSteps(outputAction)) {
             val inSteps = state.st2.getDstSteps(inputAction)
             val cmpAction = MActionExpr.of(AutomatonAction.tau(), outStep.action.location)
             processSharedStep(state, queueProvider, cmpAction, outStep, inSteps, true)
         }
 
-        // st2 -> outputs with st1 -> inputs
+        // Automaton 2 state output --> Automaton 1 state input
         for (outStep in state.st2.getDstSteps(outputAction)) {
             val inSteps = state.st1.getDstSteps(inputAction)
             val cmpAction = MActionExpr.of(AutomatonAction.tau(), outStep.action.location)
             processSharedStep(state, queueProvider, cmpAction, outStep, inSteps, false)
         }
+
         return true
     }
 
@@ -245,7 +263,7 @@ open class MemProductOperation(
         inSteps: List<MemStep>,
         isOutInFstState: Boolean
     ) {
-        var atLestOnePreSat = false
+        var atLeastOnePreSat = false
         val preErrors = mutableListOf<Pair<String, MemStep>>()
         for (inStep in inSteps) {
 
@@ -254,11 +272,11 @@ open class MemProductOperation(
 
             // flag if result is true
             if (first) {
-                atLestOnePreSat = true
-                // there exist a post-condition which is UNSAT -> error state if composition
+                atLeastOnePreSat = true
+                // there exist a post-condition which is UNSAT -> error state in composition
                 if (!second) {
                     cacheErrorState(state, cmpAction, outStep, inStep, msgErr ?: "", isOutInFstState)
-                    logger.debug("error state because of existing an UNSAT post-condition: " + state.id)
+                    logger.debug("Error state because the post-condition of a transition is UNSAT: " + state.id)
                 }
             } else {
                 preErrors.add(Pair(msgErr ?: "", inStep))
@@ -266,10 +284,10 @@ open class MemProductOperation(
         }
 
         // validate if there is no Pre-condition is SAT
-        if (!atLestOnePreSat && preErrors.isNotEmpty()) {
+        if (!atLeastOnePreSat && preErrors.isNotEmpty()) {
             val lastPreError = preErrors.first()
             cacheErrorState(state, cmpAction, outStep, lastPreError.second, lastPreError.first, isOutInFstState)
-            logger.debug("error state because of all UNSAT pre-condition: " + state.id)
+            logger.debug("Error state because the pre-conditions of all transitions are UNSAT: " + state.id)
         }
     }
 

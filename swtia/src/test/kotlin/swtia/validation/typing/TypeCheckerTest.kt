@@ -34,7 +34,6 @@ import com.google.inject.Inject
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
 import org.eclipse.xtext.testing.validation.ValidationTestHelper
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -78,7 +77,7 @@ class TypeCheckerTest {
     )
     fun exprTypeErrorBoolButIntOnExpr(src: String) {
         val model = testHelper.parseNoErrors(src)
-         validationTestHelper.assertError(model, IaPackage.Literals.GEXPR_STMT, null, "expected type 'bool' but actual 'int'")
+         validationTestHelper.assertError(model, IaPackage.Literals.GEXPR_STMT, null, "Expected type 'bool' but got 'int'")
     }
 
     @ParameterizedTest
@@ -92,7 +91,7 @@ class TypeCheckerTest {
     )
     fun exprStmtMustBeBool(src: String) {
         val model = testHelper.parseNoErrors(src)
-        validationTestHelper.assertError(model, IaPackage.Literals.GEXPR_STMT, null, "expected type 'bool' but actual 'int'")
+        validationTestHelper.assertError(model, IaPackage.Literals.GEXPR_STMT, null, "Expected type 'bool' but got 'int'")
     }
 
     @ParameterizedTest
@@ -104,7 +103,7 @@ class TypeCheckerTest {
     )
     fun exprTypeErrorBoolButIntOnIfStmt(src: String) {
         val model = testHelper.parseNoErrors(src)
-        validationTestHelper.assertError(model, IaPackage.Literals.GIF_STMT, null, "expected type 'bool' but actual 'int'")
+        validationTestHelper.assertError(model, IaPackage.Literals.GIF_STMT, null, "Expected type 'bool' but got 'int'")
     }
 
     @ParameterizedTest
@@ -117,6 +116,6 @@ class TypeCheckerTest {
         ]
     )
     fun exprTypeErrorExpectSameType(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GEXPR_STMT, null, "expected same types but actual")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GEXPR_STMT, null, "Expected same types but got", "and")
     }
 }

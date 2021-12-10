@@ -40,7 +40,7 @@ class MemAutomatonBuilder(private val name: String, initId: String, decls: Colle
 
     private val initState = MemState(initId, true)
     private val mapActions= mutableMapOf<String, AutomatonAction>()
-    val mapStates = mutableMapOf<String, MemState>()
+    private val mapStates = mutableMapOf<String, MemState>()
     private val mapDecls = mutableMapOf<String, MDecl>()
 
     init {

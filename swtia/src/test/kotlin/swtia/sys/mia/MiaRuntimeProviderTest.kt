@@ -157,7 +157,7 @@ class MiaRuntimeProviderTest {
     )
     fun pruneIncludeInitState(src: String) {
         val pair = standaloneApp.execModel(testHelper.validate(src))
-        assertEquals("invalid result automaton of product (init state is pruned)", pair.errorMsg)
+        assertEquals("Invalid automaton (initial state is pruned)", pair.errorMsg)
     }
 
     @ParameterizedTest
@@ -197,6 +197,17 @@ class MiaRuntimeProviderTest {
         assertTrue(pair.isSat)
         val init = pair.runtimeData!!.getMiaSys("p1").automaton.initState
         assertEquals("a!", init.actionsSequence.joinToString())
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "#mia actions { b } proc P { act { b! } b! } proc A { act { b? } } init { sys p = P() sys a = A() sys prod = product(p, a) }"
+        ]
+    )
+    fun incompatible(src: String) {
+        val pair = standaloneApp.execModel(testHelper.validate(src))
+        assertEquals("Systems p and a are incompatible", pair.errorMsg)
     }
 
     @ParameterizedTest

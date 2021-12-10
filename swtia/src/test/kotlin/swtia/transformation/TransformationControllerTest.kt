@@ -111,7 +111,7 @@ class TransformationControllerTest {
         ]
     )
     fun errorInvalidPostCondition(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "invalid post condition")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "Invalid post-condition")
     }
 
     @ParameterizedTest
@@ -122,6 +122,6 @@ class TransformationControllerTest {
         ]
     )
     fun errorNoActionPostCondition(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "no action found for post condition")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GMODEL, null, "No action found for post-condition")
     }
 }

@@ -137,7 +137,7 @@ class ValidatorTest {
         ]
     )
     fun errorLocalNotSupported(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GVAR_DECL, null, "local variable is not supported")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GVAR_DECL, null, "Local variables are not supported: move 'x' to global scope")
     }
 
     @ParameterizedTest
@@ -204,17 +204,17 @@ class ValidatorTest {
         ]
     )
     fun errorProcIsDefined(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GPROC, null, "process", "is already defined")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GPROC, null, "Redefinition of process")
     }
 
     @ParameterizedTest
     @ValueSource(
         strings = [
-            "proc p {} proc q {} init { sys p1 = p() sys p1 = p() } ",
+            "proc p {} proc q {} init { sys p1 = p() sys p1 = p() }",
         ]
     )
     fun errorSysIsDefined(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GSYS_DECL_STMT, null, "system", "is already defined")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GSYS_DECL_STMT, null, "Redefinition of system")
     }
 
     @ParameterizedTest
@@ -228,7 +228,7 @@ class ValidatorTest {
         ]
     )
     fun errorVariableDefined(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GCOMMON_VAR, null, "identifier", "is already defined")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GCOMMON_VAR, null, "Redefinition of identifier")
     }
 
     @ParameterizedTest
@@ -239,7 +239,7 @@ class ValidatorTest {
         ]
     )
     fun errorActionDeclaredInProc(src: String) {
-        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GACTION_REF, null, "action", "is already declared")
+        validationTestHelper.assertError(testHelper.parseNoErrors(src), IaPackage.Literals.GACTION_REF, null, "Redeclaration of action", "in")
     }
 
     @ParameterizedTest

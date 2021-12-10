@@ -74,6 +74,6 @@ class ModelInitTypeCheckerTest {
     )
     fun exprTypeExpectedSysButBool(src: String) {
         val model = testHelper.parseNoErrors(src)
-        validationTestHelper.assertError(model, IaPackage.Literals.GSYS_DECL_STMT, null, "expected type 'sys' but actual 'bool'")
+        validationTestHelper.assertError(model, IaPackage.Literals.GSYS_DECL_STMT, null, "Expected type 'sys' but got 'bool'")
     }
 }

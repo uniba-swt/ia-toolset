@@ -152,6 +152,7 @@ open class ProductOperation(private val ia1: Automaton, private val ia2: Automat
         val inputAction = AutomatonAction.ofInput(outputAction.name)
         if (state.st1.hasAction(outputAction) && !state.st2.hasAction(inputAction)) return false
         if (state.st2.hasAction(outputAction) && !state.st1.hasAction(inputAction)) return false
+
         val cmpAction = AutomatonAction.tau()
         // st1 -> outputs with st2 -> inputs
         for (outState in state.st1.getDstStates(outputAction)) {
