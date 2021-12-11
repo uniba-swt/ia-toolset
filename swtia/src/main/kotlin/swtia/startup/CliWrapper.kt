@@ -101,7 +101,7 @@ class CliWrapper {
     companion object {
 
         // should find another solution to sync the version with build.gradle and show git commit reference
-        private const val Version = "1.0.0"
+        private const val Version = "1.0.1"
 
         private const val KeyFormat = "fmt"
 
