@@ -111,10 +111,18 @@ open class MemProductOperation(
         logger.debug("Process pair: " + state.id)
 
         // Automaton 1: Error state
-        // TODO
+        if (state.st1.isError) {
+            val errMsg = "Error state from automaton ${state.st1.name}: ${state.id}"
+            builder.markStateAsError(state.id)
+            logger.debug(errMsg)
+        }
 
         // Automaton 2: Error state
-        // TODO
+        if (state.st2.isError) {
+            val errMsg = "Error state from automaton ${state.st2.name}: ${state.id}"
+            builder.markStateAsError(state.id)
+            logger.debug(errMsg)
+        }
 
         // Automaton 1: Shared output action (either synchronised or non-shared)
         for (outputAction in state.st1.outputActions) {
@@ -216,7 +224,7 @@ open class MemProductOperation(
         if (st1CommErr || st2CommErr) {
             val outStep = if (st1CommErr) state.st1.getDstSteps(outputAction).first()
                           else state.st2.getDstSteps(outputAction).first()
-            val errMsg = "Error state because there are no transitions with $inputAction: ${state.id}"
+            val errMsg = "Communication error because there are no $inputAction transitions available: ${state.id}"
             cacheErrorState(state, MActionExpr.of(outputAction, outStep.action.location), outStep, null, errMsg, true)
             logger.debug(errMsg)
             return
@@ -317,10 +325,8 @@ open class MemProductOperation(
         }
 
         // add
-        val cmpDstSt = if (isOutInFstState) ProductMemState(
-            outStep.dstState,
-            inStep.dstState
-        ) else ProductMemState(inStep.dstState, outStep.dstState)
+        val cmpDstSt = if (isOutInFstState) ProductMemState(outStep.dstState, inStep.dstState)
+                       else ProductMemState(inStep.dstState, outStep.dstState)
 
         val step = addNewStep(state, cmpAction, cmpPreCon, inStep.postCond, cmpDstSt, queueProvider)
         val pair = if (isOutInFstState) Pair(outStep, inStep) else Pair(inStep, outStep)

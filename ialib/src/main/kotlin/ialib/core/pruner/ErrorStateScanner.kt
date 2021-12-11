@@ -37,7 +37,7 @@ import org.jgrapht.graph.builder.GraphTypeBuilder
 /**
  * Build a directed graph for states with autonomous edges only, edge value is the src vertex
  * Add a special error state as init
- * All error states connected to the init state
+ * All error states are connected to the init state
  *
  *
  * To compute all indirect error states:
@@ -59,7 +59,7 @@ class ErrorStateScanner {
     fun addEdge(src: String, dst: String) {
         graph.addVertex(src)
         graph.addVertex(dst)
-        graph.addEdge(src, dst, src)
+        graph.addEdge(src, dst, "$src $dst")
     }
 
     /**
@@ -72,9 +72,10 @@ class ErrorStateScanner {
             // find incoming
             val edges = graph.incomingEdgesOf(item)
             for (edge in edges) {
-                // edge value is the src
-                set.add(edge)
-                pr.queue(edge)
+                // src is the first part of the edge value
+                val src = edge.substringBefore(" ")
+                set.add(src)
+                pr.queue(src)
             }
         } )
         processor.start(init)
