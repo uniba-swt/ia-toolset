@@ -23,9 +23,9 @@ subprojects {
 	apply from: "${rootDir}/gradle/source-layout.gradle"
 	apply plugin: 'eclipse'
 
-	// change value in class: CliWrapper.kt as well
+	// Change value in CliWrapper.kt and package.json as well
 	group = 'swtia'
-	version = '1.0.0'
+	version = '1.0.1'
 	
 	sourceCompatibility = '11'
 	targetCompatibility = '11'
