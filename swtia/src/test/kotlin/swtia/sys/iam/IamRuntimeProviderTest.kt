@@ -179,7 +179,9 @@ class IamRuntimeProviderTest {
     @ParameterizedTest
     @ValueSource(
         strings = [
-            "actions { b } proc P { act { b! } b! b! } proc A { act { b? } b? } init { sys p = P() sys a = A() sys prod = product(p, a) }"
+            "actions { b } proc P { act { b! } b! b! } proc A { act { b? } b? } init { sys p = P() sys a = A() sys prod = product(p, a) }",
+            "actions { b } proc P { act { b? } b? } proc A { act { b! } case { true -> { b! } true -> { b! => b! } } } init { sys p = P() sys a = A() sys prod = product(p, a) }",
+            "actions { b } proc P { act { b? } b? } proc A { act { b! } case { true -> { b! => b! } true -> { b! } } } init { sys p = P() sys a = A() sys prod = product(p, a) }"
         ]
     )
     fun incompatible(src: String) {

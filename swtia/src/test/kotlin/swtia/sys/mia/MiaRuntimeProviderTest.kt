@@ -31,16 +31,13 @@
 package swtia.sys.mia
 
 import com.google.inject.Inject
-import org.checkerframework.common.value.qual.StringVal
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import swtia.startup.StandaloneApp
-import swtia.sys.IaRuntimeException
 import swtia.tests.IaInjectorProvider
 import swtia.util.TestHelper
 
@@ -202,7 +199,9 @@ class MiaRuntimeProviderTest {
     @ParameterizedTest
     @ValueSource(
         strings = [
-            "#mia actions { b } proc P { act { b! } b! } proc A { act { b? } } init { sys p = P() sys a = A() sys prod = product(p, a) }"
+            "#mia actions { b } proc P { act { b! } b! } proc A { act { b? } } init { sys p = P() sys a = A() sys prod = product(p, a) }",
+            "#mia actions { b } proc P { act { b? } b? } proc A { act { b! } case { b! -> tau  b! -> b! } } init { sys p = P() sys a = A() sys prod = product(p, a) }",
+            "#mia actions { b } proc P { act { b? } b? } proc A { act { b! } case { b! -> b!  b! -> tau } } init { sys p = P() sys a = A() sys prod = product(p, a) }"
         ]
     )
     fun incompatible(src: String) {
