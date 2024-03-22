@@ -1,4 +1,6 @@
 #!/bin/bash
+export JAVA_HOME=`/usr/libexec/java_home -v 11`
+
 cd "$(dirname "$0")" || exit
 ./gradlew swtia:clean swtia:test || exit
 

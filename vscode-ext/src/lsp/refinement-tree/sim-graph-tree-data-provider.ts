@@ -76,7 +76,7 @@ export class SimGraphTreeDataProvider implements vscode.TreeDataProvider<Refinem
         this.refresh()
 
         // show message
-        vscode.window.showInformationMessage('Select an attach option')
+        vscode.window.showInformationMessage('Select whether to attack or to defend')
     }
 
     public updateSelectedOption(optionAttack: OptionAttack | undefined, optionDefence: OptionDefence | undefined) {
