@@ -1,0 +1,34 @@
+// Example to test the generation of families during alternating simulation
+
+actions { a, b, c, d, e }
+var x : int
+
+proc Spec {
+    act { a?, b?, c!, d! }
+
+    x > 5 => a? guarantee(x' > 2*x)
+    
+    case {
+        x >= 1 -> { c! assume(x' != 1) }
+        x == 0 -> { c! assume(x' == 1) }
+    }
+}
+
+proc Impl {
+    act { a?, b?, c!, d! }
+
+    case {
+        x == 5 -> { a? guarantee(x' > 2*x) }
+        x == 6 -> { a? guarantee(x' > 3*x) }
+        x >  6 -> { a? guarantee(x' > 4*x) }
+    }
+
+    x == 0 => { c! assume(x' > 0) }
+}
+
+init {
+    sys impl = Impl()
+    sys spec = Spec()
+
+    refinement(impl, spec)
+}

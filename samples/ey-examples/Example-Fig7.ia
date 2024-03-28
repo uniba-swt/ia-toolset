@@ -1,0 +1,51 @@
+// Example in the Gareis2019 paper
+// Fig. 5 (page 13)
+
+actions { a, b }
+var x: int
+
+proc P {
+    act { a!, b? }
+    case {
+        x == 2 -> {
+            a!
+            assume(x' != 2)
+        }
+        x == -2 -> {
+            a!
+            assume(x' != -2)
+        }
+        true -> {
+            b?
+            case {
+                x >= 0 -> {
+                    a!
+                    assume(x' == 0)
+                }
+                x == 2 -> a!
+            }
+        }
+    }
+}
+
+proc Q {
+    act { a? }
+    case {
+        x > 0 -> {
+            a?
+            guarantee(x' < 0)
+        }
+        x < 0 -> {
+            a?
+            guarantee(x' > 0)
+        }
+    }
+}
+
+init {
+	sys p = P()
+	sys q = Q()
+
+    sys prod = product(p, q)
+    sys comp = prune(prod)
+}

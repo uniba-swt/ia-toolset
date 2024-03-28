@@ -1,0 +1,29 @@
+actions { coin, atVM }
+type Drink { Coffee, Tea }
+var drink : Drink
+var value : int
+
+proc MachineSpec {
+	act { coin? }
+	value < 2 => { coin? guarantee(value' >= value) }
+}
+
+proc MachineImpl {
+	act { coin? }
+	value < 3 => { coin? guarantee(value' > value) }
+}
+
+proc Customer {
+    act { atVM?, coin! }
+	drink == Coffee => atVM?
+	value < 2 => { coin! assume(value' > value) }
+}
+
+init {
+	sys machineSpec = MachineSpec()
+	sys customer = Customer()
+	sys comp = composition(machineSpec, customer)
+
+	sys machineImpl = MachineImpl()
+	refinement(machineImpl, machineSpec)
+}

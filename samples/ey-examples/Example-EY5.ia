@@ -1,0 +1,26 @@
+// Example to test the pruning of communication errors in
+// a product automaton
+
+actions { b }
+
+proc P {
+  act { b? }
+
+  b?
+}
+
+proc A {
+  act { b! }
+
+  case {
+    true -> { b! }
+    true -> { b! => b! }
+  }
+}
+
+init {
+  sys p = P()
+  sys a = A()
+
+  sys prod = product(p, a)
+}

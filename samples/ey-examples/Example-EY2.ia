@@ -1,0 +1,36 @@
+// Example to test the creation of a product automaton from a 
+// specification and from its implementation
+
+actions { b }
+var x : int
+
+proc P {
+	act { b! }
+
+	x > 0 => { b! assume(x' < 3) }
+}
+
+proc Q {
+	act { b! }
+
+	x > -2 => { b! assume(x' < 2) }
+}
+
+proc A {
+	act { b? }
+
+	x > -4 => { b? guarantee(x' < 0) }
+}
+
+init {
+	sys p = P()
+	sys q = Q()
+	sys a = A()
+
+	refinement(p, q)
+
+	sys pa = composition(p, a)
+	sys qa = composition(q, a)
+
+	refinement(pa, qa)
+}

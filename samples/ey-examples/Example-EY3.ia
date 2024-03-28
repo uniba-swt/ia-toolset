@@ -1,0 +1,23 @@
+actions {a, b}
+
+proc P {
+	act {a!}
+
+	true => a!
+}
+
+proc Q {
+	act {a?, b?}
+
+	true => b?
+	true => a?
+}
+
+init {
+	sys p = P()
+	sys q = Q()
+
+	refinement(p, q)
+
+	sys pq = composition(p, q)
+}

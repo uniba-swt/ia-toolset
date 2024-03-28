@@ -1,11 +1,11 @@
 plugins {
 	id 'application'
-	id 'org.jetbrains.kotlin.jvm' version '1.5.0'
+	id 'org.jetbrains.kotlin.jvm' version '1.6.0'
 	id 'jacoco'
 }
 
 application {
-	mainClass.set('swtia.startup.Main')
+	mainClass = 'swtia.startup.Main'
 }
 def scriptName="iac"
 tasks.withType(CreateStartScripts) {
@@ -27,9 +27,9 @@ dependencies {
 	implementation "org.eclipse.xtext:org.eclipse.xtext:${xtextVersion}"
 	implementation "org.eclipse.xtext:org.eclipse.xtext.xbase:${xtextVersion}"
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-	implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
-	implementation 'commons-cli:commons-cli:1.4'
-	implementation 'org.jgrapht:jgrapht-core:1.5.0'
+	implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0'
+	implementation 'commons-cli:commons-cli:1.5.0'
+	implementation 'org.jgrapht:jgrapht-core:1.5.1'
 }
 configurations {
 	mwe2 {
@@ -45,7 +45,7 @@ dependencies {
 }
 
 task generateXtextLanguage(type: JavaExec) {
-	main = 'org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher'
+	mainClass.set('org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher')
 	classpath = configurations.mwe2
 	inputs.file "src/main/java/swtia/GenerateIa.mwe2"
 	inputs.file "src/main/java/swtia/Ia.xtext"
@@ -81,7 +81,7 @@ jacocoTestReport {
 		}))
 	}
 	reports {
-		html.enabled true
+		html.required = true
 	}
 }
 
@@ -89,17 +89,18 @@ test.finalizedBy(jacocoTestReport)
 
 compileKotlin {
 	kotlinOptions {
-		jvmTarget = "1.8"
+		jvmTarget = "11"
 	}
 }
 compileTestKotlin {
 	kotlinOptions {
-		jvmTarget = "1.8"
+		jvmTarget = "11"
 	}
 }
 
 compileKotlin.dependsOn(generateXtext)
 
+processResources.dependsOn(generateXtextLanguage)
 generateXtext.dependsOn(generateXtextLanguage)
 clean.dependsOn(cleanGenerateXtextLanguage)
 eclipse.classpath.plusConfigurations += [configurations.mwe2]

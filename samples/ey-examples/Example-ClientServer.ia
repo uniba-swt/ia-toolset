@@ -1,0 +1,42 @@
+actions { snd, ok, fail, trnsmt, ack, nack }
+var x: int
+
+proc Client1 {
+	act { snd!, ok?, fail? }
+	while {
+		x == 1 -> { snd! => ok? }
+		ok? -> {}
+	}
+}
+
+proc Client2 {
+    act { snd!, ok?, fail? }
+    loop {
+        case {
+            x > 0 -> snd!
+            x < 0 -> snd!
+	        ok? -> tau
+        }
+    }
+    
+}
+
+proc Server {
+	act { snd?, trnsmt!, ack?, nack?, ok!, fail! }
+	while {
+		snd? -> {
+			trnsmt!
+			case {
+				ack? -> ok!
+				nack? -> fail!
+			}
+		}
+	}
+}
+
+init {
+	sys c1 = Client1()
+	refinement(Client1(), Client2())
+	sys prod = product(c1, Server())
+	sys comp = prune(prod)
+}
