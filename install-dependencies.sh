@@ -33,8 +33,8 @@ if [ "$HAS_MCRL2" = false ]; then
   sudo apt install cmake -y && \
   sudo apt install libboost-dev -y && \
   sudo apt install libgl1-mesa-dev -y && \
-  sudo apt install python-psutil -y && \
-  sudo apt install python-yaml -y && \
+  sudo apt install python3-psutil -y && \
+  sudo apt install python3-yaml -y && \
   sudo apt install qtbase5-dev -y && \
   sudo apt install libqt5opengl5-dev -y && \
   sudo apt install git -y) || exit 1
