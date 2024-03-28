@@ -1,0 +1,37 @@
+// Example to test the alternating simulation
+
+actions { a, b}
+var x : int
+
+proc ClientSpec {
+    act { a?, b? }
+    
+    a?
+}
+
+proc ClientImpl {
+    act { a?, b? }
+
+    a?
+	b?
+}
+
+proc Server {
+	act { a!, b! }
+
+	a!
+	b!
+}
+
+init {
+    sys clientSpec = ClientSpec()
+    sys clientImpl = ClientImpl()
+    refinement(clientImpl, clientSpec)
+
+	sys server = Server()
+
+	sys compositionSpec = composition(server, clientSpec)
+	sys compositionImpl = composition(server, clientImpl)
+    refinement(compositionImpl, compositionSpec)
+
+}

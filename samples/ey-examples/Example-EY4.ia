@@ -1,0 +1,28 @@
+// Example to test the preservation of error states when 
+// computing a product
+
+actions { b }
+var x : int
+
+proc P {
+  act { b? }
+
+  b?
+}
+
+proc A {
+  act { b! }
+
+  case {
+    true -> { b! }
+    true -> { b! error }
+  }
+}
+
+init {
+  sys p = P()
+  sys a = A()
+
+  sys prod = product(p, a)
+  sys pruned = prune(prod)
+}

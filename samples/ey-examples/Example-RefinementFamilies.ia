@@ -1,0 +1,103 @@
+actions { a, b }
+var x: int
+var y: int
+
+proc Spec {
+    act { a?, b! }
+    
+    while {
+        true   -> { b! assume(y == 2) }     // A
+        x >= 0 -> { b! assume(y == 2) }     // B
+        x < 0  -> { b! assume(y == 3) }     // C
+        x == 0 -> { b! assume(y == 3) }     // D
+
+        // x == 1 -> { b! assume(y == 3) }   // E
+        // x < 1  -> { b! assume(y == 3) }   // F    
+        // x > 1  -> { b! assume(y == 3) }   // G
+    }
+}
+
+proc Impl {
+    act { a?, b! }                          // X
+
+    true b! assume(y > 0)
+}
+
+init {
+    sys spec = Spec()
+    sys impl = Impl()
+
+    refinement(impl, spec)
+}
+
+// Alternating Simulation: Construction of Families
+// ------------------------------------------------
+// The intuition is that an implementation can support more inputs but less 
+// outputs than its specification. This means that an implementation can have 
+// the same inputs that support larger domains and the same outputs that 
+// support smaller domains. Additional outputs of an implementation are seen 
+// as glitchy behaviour.
+// 
+// For interface automata for shared memory, an implementation can add input 
+// behaviour, but shall maintain the same guarantees as its specification.
+// An input transition of the specification has to be matched by a family of 
+// input transitions in the implementation. The implementation's family of 
+// transitions has weaker but preconditions, but stronger postconditions, than 
+// that of the specification's transition.
+// 
+// An implementation can remove output behaviour, but shall maintain the same 
+// guarantees as its specification. An output transition of the implementation
+// has to be matched by a family of output transitions in the specification.
+// The implementation's transition has stronger preconditions, but weaker 
+// postconditions, than that of the specification's family of transitions.
+
+// Construction of Families by the Tool
+// ------------------------------------
+// In general, a large set of families may exist for an implementation and  
+// its specification. Due to the definition of families, a family may include 
+// transitions with preconditions that cannot be satisfied. These families, 
+// however, are still valid but are not useful from a practical viewpoint
+// (in real-world applications).
+//
+// To create a minimum set of families, the tool begins by constructing 
+// families that consist of single transitions. Because further valid 
+// families can be derived by adding arbitrary transitions to these single
+// transitions, the tool will no longer consider these single transitions 
+// when constructing families that consist of two, three, four, and more 
+// transitions. Each time a valid family is found, those transitions are  
+// ignored when constructing families that consist of more transitions. 
+// Thus, transitions in families with (n)-transitions do not reappear in
+// families with (n+1)-transitions.
+
+// Step 1: Check single transitions of the specification
+// * Transition A: satisfies transition X
+// * Transition B: does not satisfy
+// * Transition C: does not satisfy
+// * Transition D: does not satisfy
+//
+// Make the following families:
+// * Family 1 = { A }
+//
+// Only the following transitions of the specification will be considered
+// when constructing further families: { B, C, D }
+
+// Step 2: Check pairs of transitions of the specification
+// * Transitions B and C: satisfies transition X
+// * Transitions B and D: does not satisfy
+// * Transitions C and D: does not satisfy
+//
+// Make the following families:
+// * Family 2 = { B, C }
+//
+// Only the following transitions of the specification will be considered
+// when constructing further families: { D }
+
+// Step 3: Check triples of transitions
+// * There are not enough transitions left to create families consisting 
+//   of three transitions!
+//
+// Construction of minimal families can stop now
+
+// Resulting families that satisfiy X:
+// * Family 1 = { A }
+// * Family 2 = { B, C }
